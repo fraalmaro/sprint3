@@ -23,7 +23,7 @@ class Crear_Comentario(Form):
     enviar = SubmitField('Enviar')
 
 #Franklin
-class info_Docente(Form):
+class info_Docente(Form):  
     # ape="datos_form[5]" # ced="datos_form[6]" # em="atos_form[7]"...... 
     #StringField(label=None, validators=None, filters=tuple(), description='', id=None, default=None, widget=None, render_kw=None, _form=None, _name=None, _prefix='', _translations=None, _meta=None)
     #                *              *                                                       *                               *

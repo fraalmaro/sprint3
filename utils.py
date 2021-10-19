@@ -58,7 +58,7 @@ def isPasswordValidFacil(password):
     else:
         return False
 
-def isCedulaValid(cedula):
+def isCedulaValid(cedula): # validacion de cedula
     if(cedula.isdigit()):
         int_cedula=int(cedula)
         if(int_cedula>=0):
