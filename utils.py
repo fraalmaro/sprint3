@@ -57,3 +57,11 @@ def isPasswordValidFacil(password):
         return True
     else:
         return False
+
+def isCedulaValid(cedula):
+    if(cedula.isdigit()):
+        int_cedula=int(cedula)
+        if(int_cedula>=0):
+            return True
+    else:
+            return False

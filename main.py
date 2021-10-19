@@ -1,6 +1,7 @@
+import sqlite3
 from flask import Flask, flash, redirect, render_template, request, sessions, url_for, g, session
 from werkzeug.utils import html #agregada por franklin
-from utils import isUsernameValid, isEmailValid, isPasswordValid, isNameValid, isUsernameValidFacil, isPasswordValidFacil
+from utils import isCedulaValid, isUsernameValid, isEmailValid, isPasswordValid, isNameValid, isUsernameValidFacil, isPasswordValidFacil
 import yagmail as yagmail
 from forms import Formulario_Contacto, info_Docente, Formulario_Ingresar, info_Estudiante, crear_Actividad,registrar_Estudiante, registrar_Docente
 from db import get_db, close_db
@@ -50,8 +51,8 @@ def contacto():
                 #2. Enviar un correo.
                 # Para crear correo:                                    
                 # Modificar la siguiente linea con tu informacion personal            
-                yag = yagmail.SMTP('yeffersone@uninorte.edu.co','NN')
-                yag.send(to='yeffersone@uninorte.edu.co', subject='contacto web, '+nombre, contents=mensaje, headers={"Reply-To":f"{correo}"})
+                #yag = yagmail.SMTP('yeffersone@uninorte.edu.co','NN')
+                #yag.send(to='yeffersone@uninorte.edu.co', subject='contacto web, '+nombre, contents=mensaje, headers={"Reply-To":f"{correo}"})
                 return render_template("gracias.html", titulo='Gracias por escribirnos')
 
         return render_template("contacto.html", form=form, titulo="Formulario de contacto")
@@ -71,38 +72,66 @@ def gracias():
 #franklin
 @app.route('/infodocente', methods=['GET', 'POST'])
 def infodocente():
-    try:
-        form = info_Docente(request.form)
+    #try:
+        #form = info_Docente(request.form)
+        
         error = None
         if request.method == 'POST': #and form.validate():  
+            #print("ya presionaron guardar, ENTRANDO CON EL POST")
             nombre = request.form['nombre']
+            apellido = request.form['apellido']
             correo = request.form['correo']
             cedula = request.form['cedula']
-
+            
             #1. Validar datos de contacto:
-            if not isNameValid(nombre):
+            if not( isNameValid(nombre) or isNameValid(apellido) ):
                 # Si está mal.
-                error = "Solo debe usar letras en nombre y apellido"
+                error = "Solo debe usar letras en los campos Nombres y apellidos"
                 flash(error)
             if not isEmailValid(correo):
                 # Si está mal.
                 error = "Correo invalido"
                 flash(error)
+            if not isCedulaValid(cedula): 
+            #  Si está mal.
+               error = "Numero de cedula invalido"
+               flash(error)
             if error is not None:
                 # Ocurrió un error
+                form = info_Docente(request.form)
                 return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
+                pass
             else:
-                #2. Enviar un correo.
-                # Para crear correo:                                    
-                # Modificar la siguiente linea con tu informacion personal            
-                
-                return render_template("gracias.html", titulo='Gracias por escribirnos')
-
-        return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
-    except:
-        flash("¡Ups! Ha ocurrido un error, intentelo de nuevo.")
-        return render_template("admin/infodocente.html", form=form,titulo="Información de Docente")
-
+                db = get_db() 
+                #consulta=db.execute("UPDATE usuario SET nombre_usuario='"+nombre+"' , Apellido_usuario='"+apellido+"' , correo='"+ correo + "' , cedula ='"+str(cedula)+ "'  WHERE id_usuario ='"+str(session['user_logueado'])+"'")
+                consulta=db.execute("UPDATE usuario SET nombre_usuario=? , Apellido_usuario=?, correo=?, cedula=?  WHERE id_usuario =?",(nombre, apellido, correo, cedula, session['user_logueado']))
+                db.commit()
+               # print("ya ejecute el SQL y debi actualizar")
+                flash("Valores actualizados con éxito")
+                consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
+                #flash("la consulta de select "+ str(consulta_inicio))
+                #print("confirmé que si actualicé")
+                close_db()
+                #print("cerré la base de datos")
+                session['datos_form'] = consulta_inicio
+                form = info_Docente(request.form)
+                return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
+        else:
+            #recien entra al link infodocente.html....   
+            print("entro con GET")
+            db = get_db() 
+            consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
+            session['datos_form'] = consulta_inicio
+            print("ya hice el formulario, y le puse los valores de la consulta")
+            form = info_Docente(request.form)
+            close_db()
+            return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
+           
+        
+    #except:
+     #   flash("¡Ups! Ha ocurrido un error, intentelo de nuevo.")
+      #  return render_template("admin/infodocente.html", form=form,titulo="Información de Docente")
+        
 #Notas Estudiante
 @app.route('/notasestudiante', methods=['GET', 'POST'])
 def notasestudiante():
@@ -149,7 +178,7 @@ def ingresar():
                 else:
                     rol =  db.execute('SELECT * FROM rol WHERE id_rol = ?',(user[1],)).fetchone()
                     
-                    session['user_logueado'] = user[0]
+                    session['user_logueado'] = user[0] #id
                     session['rol_logueado'] = user[1]
                     session['nombre_logueado'] = user[4]
                     session['apellido_logueado'] = user[5]
@@ -157,12 +186,14 @@ def ingresar():
                     if user[1] == 1:
                         return render_template("admin/paneladmin.html", titulo='Panel de Administración')
                     if user[1] == 2:
-                        return render_template("admin/paneladmin.html", titulo='Panel de Docente')
+                        #form = info_Docente( )
+                        return redirect( url_for( 'infodocente' ) )
+                       # return render_template("admin/infodocente.html")
                     if user[1] == 3:
-                        return render_template("admin/paneladmin.html", titulo='Panel de Alumno')
+                        form = info_Estudiante( )
+                        return render_template("admin/infoestudiante.html", form=form, titulo='Panel de Alumno')
                     else:
-                        return render_template("admin/paneladmin.html", titulo='Panel de Error')
-
+                        return render_template("admin/paneladmin.html", form=form, titulo='Panel de Error')
 
         else:
             #flash("No entro if POST")

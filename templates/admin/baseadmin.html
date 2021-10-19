@@ -69,6 +69,13 @@
                     <div class="accordion accordion-flush" id="accordionFlushExample">
                       <!-- Items para Administrar Usuarios del Sistema-->
                       <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingSeven">
+                          <button class="accordion-button collapsed" type="button" >
+                            Inicio  <!-- al iniciar sesion cualquier usuario, debe ver primero una pagina introductoria (home user), que puede ser usada para mostrar (por ejemplo) algun elemento de la dashboard. en ves de llegar al perfil enseguida-->
+                          </button>
+                        </h2>
+                      </div>
+                      <div class="accordion-item">
                         <h2 class="accordion-header" id="flush-headingOne">
                           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
                             {% if session['rol_logueado'] == 1 %}Usuarios

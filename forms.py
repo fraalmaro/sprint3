@@ -1,4 +1,4 @@
-from wtforms import Form, StringField, PasswordField, BooleanField, SubmitField, validators, TextAreaField, SelectField,PasswordField, DateField
+from wtforms import Form, StringField,IntegerField, PasswordField, BooleanField, SubmitField, validators, TextAreaField, SelectField,PasswordField, DateField
 
 class Formulario_Contacto(Form):
     nombre = StringField('Nombre y Apellido', 
@@ -24,31 +24,58 @@ class Crear_Comentario(Form):
 
 #Franklin
 class info_Docente(Form):
-    nombre = StringField('Nombres y Apellidos', 
-    [ 
+    # ape="datos_form[5]" # ced="datos_form[6]" # em="atos_form[7]"...... 
+    #StringField(label=None, validators=None, filters=tuple(), description='', id=None, default=None, widget=None, render_kw=None, _form=None, _name=None, _prefix='', _translations=None, _meta=None)
+    #                *              *                                                       *                               *
+    nombre = StringField('Nombres',  
+        [ 
         validators.DataRequired('Campo Requerido para contacto'), 
-        validators.Length(min=8,max=40)
-    ] )
+        validators.Length(min=8,max=40),  
+        ],
+        #default=nomb
+        #render_kw={"placeholder": "you@example.com"},
+    )
+    apellido = StringField('Apellidos', 
+        [ 
+            validators.DataRequired('Campo Requerido para contacto'), 
+            validators.Length(min=8,max=40),  
+        ],
+        #default=ape
+        
+    )
     correo = StringField('E-mail',
-    [ 
-        validators.DataRequired('Campo Requerido para contacto'), 
-        validators.Length(min=8,max=25) 
-    ])
-    cedula = StringField('Número de Cedula',
-    [
-        validators.DataRequired('Ingrese su nùmero de cedula')
-    ])
+        [ 
+            validators.DataRequired('Campo Requerido para contacto'), 
+            validators.Length(min=8,max=25), 
+        ],  
+        #default=em,
+    )
+    cedula = IntegerField('Número de Cedula',
+        [
+            validators.DataRequired('Ingrese su nùmero de cedula')
+        ],
+        #default=ced
+    )
+    codigo_usuario = IntegerField('codigo de usuario',
+        
+        #   default=cod_user
+    )
     pregrado = StringField('Pregrado', 
-    [ 
-        validators.DataRequired('Campo Requerido para contacto'), 
-        validators.Length(min=8,max=40)
-    ] )
+        [ 
+            validators.DataRequired('Campo Requerido para contacto'), 
+            validators.Length(min=8,max=40)
+        ], 
+        #default=preg
+    )
     postgrado = StringField('Postgrado', 
-    [ 
-        validators.DataRequired('Campo Requerido para contacto'), 
-        validators.Length(min=8,max=40)
-    ] )
-    language = SelectField(u'Asignatura', choices=[('a1', 'Asignatura 1'), ('a2', 'Asignatura 2'), ('a3', 'Asignatura 3')])
+        [ 
+            validators.DataRequired('Campo Requerido para contacto'), 
+            validators.Length(min=8,max=40)
+        ],
+        #default=post
+     )
+    asignatura = SelectField('Asignatura', choices=[('a1', 'Asignatura 1'), ('a2', 'Asignatura 2'), ('a3', 'Asignatura 3')])
+   # hacer consulta de lista de asignaturas en db
     guardar = SubmitField('Guardar')
 
 #Gabriel
