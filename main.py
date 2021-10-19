@@ -2,7 +2,7 @@ import sqlite3
 from flask import Flask, flash, redirect, render_template, request, sessions, url_for, g, session
 from werkzeug.utils import html #agregada por franklin
 from utils import isCedulaValid, isUsernameValid, isEmailValid, isPasswordValid, isNameValid, isUsernameValidFacil, isPasswordValidFacil
-import yagmail as yagmail
+#import yagmail as yagmail
 from forms import Formulario_Contacto, info_Docente, Formulario_Ingresar, info_Estudiante, crear_Actividad,registrar_Estudiante, registrar_Docente
 from db import get_db, close_db
 import functools
@@ -100,6 +100,8 @@ def infodocente():
             apellido = request.form['apellido']
             correo = request.form['correo']
             cedula = request.form['cedula']
+            pregrado = request.form['pregrado']
+            postgrado = request.form['postgrado']
             
             #1. Validar datos de contacto:
             if not( isNameValid(nombre) or isNameValid(apellido) ):
@@ -121,9 +123,8 @@ def infodocente():
                 pass
             else:
                 db = get_db() 
-                #consulta=db.execute("UPDATE usuario SET nombre_usuario='"+nombre+"' , Apellido_usuario='"+apellido+"' , correo='"+ correo + "' , cedula ='"+str(cedula)+ "'  WHERE id_usuario ='"+str(session['user_logueado'])+"'")
-                consulta=db.execute("UPDATE usuario SET nombre_usuario=? , Apellido_usuario=?, correo=?, cedula=?  WHERE id_usuario =?",(nombre, apellido, correo, cedula, session['user_logueado']))
-                db.commit()
+                consulta=db.execute("UPDATE usuario SET nombre_usuario=? , Apellido_usuario=?, correo=?, cedula=?, pregrado=?, postgrado=?  WHERE id_usuario =?",(nombre, apellido, correo, cedula, pregrado, postgrado, session['user_logueado']))
+                db.commit() # si no se hace comit, no se confirmara ninguna modificacion en la bd
                # print("ya ejecute el SQL y debi actualizar")
                 flash("Valores actualizados con éxito")
                 consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
@@ -137,6 +138,8 @@ def infodocente():
         else:
             #recien entra al link infodocente.html....   
             print("entro con GET")
+            session['gps']="Perfil" #breadcrumb
+            session['link']="infodocente"#breadcrumb
             db = get_db() 
             consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
             session['datos_form'] = consulta_inicio
@@ -144,8 +147,7 @@ def infodocente():
             form = info_Docente(request.form)
             close_db()
             return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
-           
-        
+    
     #except:
      #   flash("¡Ups! Ha ocurrido un error, intentelo de nuevo.")
       #  return render_template("admin/infodocente.html", form=form,titulo="Información de Docente")

@@ -9,8 +9,7 @@
 
 
 {% block areatrabajo %}
-      <h3 class="text-center">Docente Nombre del Docente</h3>
-      
+      <h3 class="text-center">Docente {{session['nombre_logueado']}} {{session['apellido_logueado']}}</h3>
       <div class="container">
             <div class="row">
               <div class="col-1">
@@ -22,9 +21,7 @@
             </div>
       </div>
       <hr class="featurette-divider">
-      <div class="container">              <!--      formulario   name="formInfoDocente_basica" -->
-       
-        <!-- <form action="{{ url_for('infodocente') }}" method="POST" name="formInfoDocente_basica" onsubmit="validar_formulario();" > -->
+      <div class="container">             
         <form action="{{ url_for('infodocente') }}" method="post" name="formInfoDocente"  >
           <div class="mb-3">
               
@@ -47,14 +44,13 @@
           </div> 
           <div class="mb-3">                    
             {{ form.codigo_usuario.label(class_="form-label")   }} 
-            {{ form.codigo_usuario(class="form-control", id="codigo", value=session['datos_form'][8] )   }}  
+            {{ form.codigo_usuario(class="form-control", id="codigo", value=session['datos_form'][8] , disabled="true")   }}  
           </div> 
           <div class="container">
             <div class="row">
-            <!-- {{ form.guardar(class="btn btn-primary")  }}  -->
+          
             </div>                       
         </div><br />
-        <!-- </form>       -->
       </div>
 
       <div class="container">
@@ -63,19 +59,18 @@
              <h3 class="text-center">Informacion Académica</h3>
           </div>
         </div>
-      </div>             <!--      formulario   name="formInfoDocente_academ" -->
-      <!-- <form action="{{ url_for('infodocente') }}" method="post" name="formInfoDocente_academ" onsubmit="validar_formulario();" > -->
+      </div>     
         <div class="container">
           <div class="mb-3">                    
             {{ form.pregrado.label(class_="form-label")   }} 
-            {{ form.pregrado(class="form-control", id="pregrado", placeholder="Ingenieria Mecatrónica")   }}  
+            {{ form.pregrado(class="form-control", id="pregrado", value=session['datos_form'][9] ,placeholder="ej: Ingenieria Informatica")   }}  
           </div>
           <div class="mb-3">                    
             {{ form.postgrado.label(class_="form-label")   }} 
-            {{ form.postgrado(class="form-control", id="postgrado", placeholder="Maestria en Soldadura de Nanocomponentes")   }}  
+            {{ form.postgrado(class="form-control", id="postgrado", value=session['datos_form'][10], placeholder="ej: Phd en filosofia griega")   }}  
           </div>
         </div>
-        <div class="container">
+        <!-- <div class="container">
           <div class="row">
             <div class="col-11 text-xl-start">
                <h3 class="text-center">Asignaturas a Cargo</h3>
@@ -83,10 +78,19 @@
           </div>
           {{ form.asignatura.label(class_="form-label")   }} 
             {{ form.asignatura(class="form-control", id="Asignaturas")   }}
-        </div>
+            <table class="table-secondary">
+              <tbody>
+                {%- for column in columns %}
+                    <tr scope="row">{{ row|attr(column) }}</tr>
+                {%- endfor %}
+              </tbody>
+            </table> 
+        
+        
+          </div>-->
          <br />
          <div class="container">
-            <div class="row">
+            <div class="row" >
             {{ form.guardar(class="btn btn-primary")  }} 
             </div>                       
         </div><br />

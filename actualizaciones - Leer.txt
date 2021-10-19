@@ -18,3 +18,9 @@ total actualizacion:
 
 19-10-2021
 
+- modificacion en baseadmin.html, bloque para breadcrumbs "migajas de pan", con uso de sesiones modificadas desde el main.py en los enrutadores
+- modificaciones en el main.py , sesion link y gps, falta hacerlo para todos.
+- modificaciones en el main.py , ya se consulta y  actualiza pregrado y postgrado
+- modificacione infodocentes.html, label codigo_usuario disabled
+- modificacion en bd, tabla usuario, campo pregrado y postgrado.( aunque lo ideal es que fuera con otra tabla, para separar datos personales con datos de cuenta de usuario)
+- 

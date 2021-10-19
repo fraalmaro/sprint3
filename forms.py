@@ -1,4 +1,7 @@
 from wtforms import Form, StringField,IntegerField, PasswordField, BooleanField, SubmitField, validators, TextAreaField, SelectField,PasswordField, DateField
+from flask import  sessions, session
+
+from db import get_db
 
 class Formulario_Contacto(Form):
     nombre = StringField('Nombre y Apellido', 
@@ -76,6 +79,12 @@ class info_Docente(Form):
      )
     asignatura = SelectField('Asignatura', choices=[('a1', 'Asignatura 1'), ('a2', 'Asignatura 2'), ('a3', 'Asignatura 3')])
    # hacer consulta de lista de asignaturas en db
+   # db = get_db()
+   # lista_asignatura=db.execute("SELECT id_curso FROM rel_curso_actividad_usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
+    
+    
+    
+    
     guardar = SubmitField('Guardar')
 
 #Gabriel

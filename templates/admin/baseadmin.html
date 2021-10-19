@@ -176,7 +176,14 @@
                       </div>
                     {% endif %}
                     {% endwith %} {{error}}
-
+                    {% block breadcrumbs %}
+                    <nav aria-label="breadcrumb">
+                      <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{session['link']}}" >Home {{session['nombre_rol']}}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{session['gps']}}</li>
+                      </ol>
+                    </nav>
+                    {% endblock %}
                     {% block areatrabajo %}{% endblock %}
                   </div>
                 </div>
