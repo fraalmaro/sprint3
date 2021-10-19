@@ -61,6 +61,24 @@ def contacto():
         return render_template("contacto.html", titulo="Formulario de contacto")
 
 #Decoradores Panel Administrativo
+#Accesiones Generales
+@app.route('/consultaractividades', methods=['GET', 'POST'])#lista las actividades 
+def consultaractividades():
+    db = get_db()
+    actividades =  db.execute('SELECT * FROM actividades INNER JOIN tipo_actividad ON actividades.id_tipo_actividad = tipo_actividad.id_tipo_actividad').fetchall()
+    if actividades is None:
+        error = "No se han creado actividades"
+        flash(error)
+        return render_template("admin/actividades/consultaractividades.html", titulo="Listado de Actividades")
+    else:
+        for i in range(len(actividades)):
+            for j in range(len(actividades[i])):
+                print(actividades[i][j], end=' ')
+            print()
+        
+        session['actividades'] = actividades
+    return render_template("admin/actividades/consultaractividades.html")
+
 @app.route('/comentariosactividad', methods=['GET', 'POST'])
 def comentariosactividad():    
     return render_template("admin/comentariosactividad.html")

@@ -1,0 +1,46 @@
+{% extends 'admin/baseadmin.html' %}
+
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+</div>
+{% endblock %}
+
+
+
+{% block areatrabajo %}
+      <h3 class="text-center">Panel de {{session['nombre_rol']}}</h3>
+      <h4>Consultar Actividades</h4>
+      {{session['actividades']}}
+      
+      {% if session['actividades']%}
+      <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Descripción Actividad</th>
+                <th scope="col">Tipo de Actividad</th>
+                <th scope="col">Fecha de entrega</th>
+                <th scope="col">Documento Adjunto</th>
+                <th scope="col">Asignatura</th>
+                <th scope="col">Calificación</th>
+              </tr>
+            </thead>
+            <tbody>
+            {%for id, desc, id_tipo, fecha, adj, id_asig, calif, id_tipo_act, nombre_act in session['actividades']%}
+              <tr>
+                <th scope="row">{{id}}</th>
+                <td>{{desc}}</td>
+                <td>{{nombre_act}}</td>
+                <td>{{fecha}}</td>
+                <td>{{adj}}</td>
+                <td>{{id_asig}}</td>
+                <td>{{calif}}</td>
+              </tr>
+            {%endfor%} 
+            </tbody>
+      </table>
+      {%endif%}
+{% endblock %}
+
