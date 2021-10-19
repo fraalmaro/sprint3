@@ -1,0 +1,20 @@
+18-10-2021
+
+- modificaciones en def infodocentes -> main.py para el funcionamiento de infodocente.html
+- modificaciones en utils.py para la validacion de la cedula
+- modificaciones en infodocentes.html, para mostrar datos antes de modificar_ uso de sesiones.
+- modificaciones en baseadmin.html, boton de inicio en acordeon (home o una introduccion) en cada perfil de usuario
+- modificaciones en def ingresar -> main.py , redireccinoamiento de url y render_template para infodocentes.html
+- modificacion en form.py -> class info_docentes(), para agregar fields. uso de integerField.
+- comentarios en form.py solo para cuestiones de ensayo-error
+- bifurcacion en github, porque no supe como agregar modificaciones a la rama main
+
+total actualizacion: 
+-El usuario al loguearse desde ingresar.html, redirecciona (cambia url) y renderiza el template infodocentes.hmtl,
+- inmediatamente con los valores de la sesion se realiza la consulta de los datos personales del usuario loggeado en la bd
+   para mostrarlos en los labels.
+- ya hay update exitoso en la bd
+-la idea es, mostrar informacion con labels desactivados, para que al momento de presionar el boton modificar, se puedan modificar algunos daatos y dar update
+
+19-10-2021
+
