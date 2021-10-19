@@ -232,33 +232,59 @@ def busqueda_cursos():
 #Decoradores informacion estudiante
 @app.route('/infoestudiante', methods=['GET', 'POST'])
 def infoestudiante():
-    try:
-        form = info_Estudiante(request.form)
-        error = None
-        if request.method == 'POST': #and form.validate():  
-            nombre = request.form['nombre']
-            correo = request.form['correo']
-            cedula = request.form['cedula']
-
-            #1. Validar datos de contacto:
-            if not isNameValid(nombre):
-                # Si está mal.
-                error = "Solo debe usar letras en nombre y apellido"
-                flash(error)
-            if not isEmailValid(correo):
-                # Si está mal.
-                error = "Correo invalido"
-                flash(error)
-            if error is not None:
-                # Ocurrió un error
-                return render_template("admin/infoestudiante.html", form=form, titulo="Información del Estudiante")
-            else:
-                return render_template("gracias.html", titulo='Gracias por escribirnos')
-
-        return render_template("admin/infoestudiante.html", form=form, titulo="Información del Estudiante")
-    except:
-        flash("¡Ups! Ha ocurrido un error, intentelo de nuevo.")
-        return render_template("admin/infoestudiante.html", form=form,titulo="Información del Estudiante")
+    error = None
+    if request.method == 'POST': #and form.validate(): 
+        nombre = request.form['nombre']
+        apellido = request.form['apellido']
+        correo = request.form['correo']
+        #cedula = request.form['cedula']
+        #pregrado = request.form['pregrado']
+        #postgrado = request.form['postgrado']
+        
+        #1. Validar datos de contacto:
+        if not( isNameValid(nombre) or isNameValid(apellido) ):
+            # Si está mal.
+            error = "Solo debe usar letras en los campos Nombres y apellidos"
+            flash(error)
+        if not isEmailValid(correo):
+            # Si está mal.
+            error = "Correo invalido"
+            flash(error)
+        if not isCedulaValid(cedula): 
+        #  Si está mal.
+            error = "Numero de cedula invalido"
+            flash(error)
+        if error is not None:
+            # Ocurrió un error
+            form = info_Docente(request.form)
+            return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
+            pass
+        else:
+            db = get_db() 
+            consulta=db.execute("UPDATE usuario SET nombre_usuario=? , Apellido_usuario=?, correo=?, cedula=?, pregrado=?, postgrado=?  WHERE id_usuario =?",(nombre, apellido, correo, cedula, pregrado, postgrado, session['user_logueado']))
+            db.commit() # si no se hace comit, no se confirmara ninguna modificacion en la bd
+            # print("ya ejecute el SQL y debi actualizar")
+            flash("Valores actualizados con éxito")
+            consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
+            #flash("la consulta de select "+ str(consulta_inicio))
+            #print("confirmé que si actualicé")
+            close_db()
+            #print("cerré la base de datos")
+            session['datos_form'] = consulta_inicio
+            form = info_Docente(request.form)
+            return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
+    else:
+        #recien entra al link infodocente.html....   
+        print("entro con GET")
+        session['gps']="Perfil" #breadcrumb
+        session['link']="infodocente"#breadcrumb
+        db = get_db() 
+        consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
+        session['datos_form'] = consulta_inicio
+        print("ya hice el formulario, y le puse los valores de la consulta")
+        form = info_Docente(request.form)
+        close_db()
+        return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
 
 #Claudio
 @app.route('/creacionactividaddocente', methods=['GET', 'POST'])

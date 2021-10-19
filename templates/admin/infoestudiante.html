@@ -1,5 +1,5 @@
 {% extends 'admin/baseadmin.html' %}
-<!-- aun no sé como se ve-->
+
 {% block infouser %}
 <div class="text-center">
       <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
@@ -8,23 +8,22 @@
 {% endblock %}
 
 {% block areatrabajo %}
-<h3 class="text-center"> Información del Estudiante </h3>
-<br/>
+<h3 class="text-center">Estudiante {{session['nombre_logueado']}} {{session['apellido_logueado']}}</h3>
 <div class="container">
-  <div class="row">
-    <div class="col-1">
-      <img src="{{ url_for('static', filename='img/file.png') }}" alt="file" class="img-fluid rounded" />
+    <br>
+    <br>
+    <div class="row">
+          <div class="col-1">
+              <img src="{{ url_for('static', filename='img/file.png') }}" alt="file" class="img-fluid rounded" />
+          </div>
+          <div class="col-4 text-xl-start">
+             <h4>Información Básica</h4>
+          </div>
+          <div class="col-7 text-xl-start">
+            <h5 align="right" ><strong>Editar</strong></h5> 
+            <img align="right" src="{{ url_for('static', filename='img/editar.png') }}" alt="editar" class="img-fluid rounded" href="" alt="" width="30" height="30"/>
+          </div>     
     </div>
-
-    <div class="col-2 text-xl-start">
-      <h4>Informacion básica</h4>
-    </div>
-
-    <div class="col-8 ">
-      <h5 align="right" ><strong>Editar</strong></h5>                
-      <img align="right" src="{{ url_for('static', filename='img/editar.png') }}" alt="editar" class="img-fluid rounded" href="" alt="" width="30" height="30"/>
-    </div>
-  </div>
   <hr class="featurette-divider">
   <div class="container-fluid">
     <div class="row featurette">
