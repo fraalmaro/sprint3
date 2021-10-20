@@ -23,4 +23,8 @@ total actualizacion:
 - modificaciones en el main.py , ya se consulta y  actualiza pregrado y postgrado
 - modificacione infodocentes.html, label codigo_usuario disabled
 - modificacion en bd, tabla usuario, campo pregrado y postgrado.( aunque lo ideal es que fuera con otra tabla, para separar datos personales con datos de cuenta de usuario)
-- 
+-
+
+20-10-2021
+
+-indoestudiantes funcionando 100% con su consulta de update

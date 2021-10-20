@@ -1,5 +1,4 @@
 {% extends 'admin/baseadmin.html' %}
-<!-- aun no sé como se ve-->
 {% block infouser %}
 <div class="text-center">
       <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
@@ -30,7 +29,7 @@
     <br> 
     <form action="{{ url_for('infodocente') }}" method="post" name="formInfoDocente"  >
           <div class="mb-3"> 
-              {{ form.nombre.label(class_="form-label")  }}
+              {{ form.nombre.label(class_="form-label")  }}  
               {{ form.nombre(class="form-control", id="nombre", value=session['datos_form'][4] ,placeholder="Nombre" )  }}  
           </div>
           <div class="mb-3">

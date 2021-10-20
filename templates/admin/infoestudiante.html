@@ -28,36 +28,42 @@
   <div class="container-fluid">
     <div class="row featurette">
       <h3 class="text-center">Formulario de Contacto</h3>
-      <form action="{{ url_for('infoestudiante') }}" method="post" name="formRegistroEstudiante" onsubmit="validar_formulario();" >
-          
+      <!-- <form action="{{ url_for('infoestudiante') }}" method="post" name="formRegistroEstudiante" onsubmit="validar_formulario();" > -->
+      <form action="{{ url_for('infoestudiante') }}" method="post" name="formInfoEstudiante" >
+           
         <div class="mb-3">
             {{ form.nombre.label(class_="form-label")  }} 
-            {{ form.nombre(class="form-control", placeholder="-----")  }}  
+            {{ form.nombre(class="form-control", id="nombre", value=session['datos_form'][4] ,placeholder="Nombre del estudiante" )  }}  
+        </div>
+
+        <div class="mb-3">
+            {{ form.apellido.label(class_="form-label")  }} 
+            {{ form.apellido(class="form-control", id="apellido", value=session['datos_form'][5] ,placeholder="Apellidos del estudiante"   )  }}  
         </div>
 
         <div class="mb-3">                   
             {{ form.cedula.label(class_="form-label")   }} 
-            {{ form.cedula(class="form-control", placeholder="-----")   }}  
+            {{ form.cedula(class="form-control", id="cedula", value=session['datos_form'][7] ,placeholder="1234567890")   }}  
         </div>
 
         <div class="mb-3">                   
           {{ form.telefono.label(class_="form-label")   }} 
-          {{ form.telefono(class="form-control", placeholder="-----")   }}  
+          {{ form.telefono(class="form-control", id="telefono", value=session['datos_form'][11], placeholder="3001234567")   }}  
         </div>
 
         <div class="mb-3">                   
           {{ form.fechaNac.label(class_="form-label")   }} 
-          {{ form.fechaNac(class="form-control", placeholder="-----")   }}  
+          {{ form.fechaNac(class="form-control",id="fechaNac", value=session['datos_form'][12], placeholder="dd/mm/aa")   }}  
         </div>
 
         <div class="mb-3">                   
           {{ form.correo.label(class_="form-label")   }} 
-          {{ form.correo(class="form-control", placeholder="-----")   }}  
+          {{ form.correo(class="form-control", id="correo",placeholder="correopersonal@gmail.com" )   }}  
         </div>
 
         <div class="mb-3">                   
           {{ form.codigo.label(class_="form-label")   }} 
-          {{ form.codigo(class="form-control", placeholder="-----")   }}  
+          {{ form.codigo(class="form-control", id="codigo",value=session['datos_form'][8] , disabled="true" )   }}  
         </div>
 
         <div class="row">
@@ -78,12 +84,18 @@
         <hr class="featurette-divider">
         <div class="mb-3">                   
           {{ form.facultad.label(class_="form-label")   }} 
-          {{ form.facultad(class="form-control", placeholder="-----")   }}  
+          {{ form.facultad(class="form-control", id="facultad", value=session['datos_form'][13] , disabled="true")   }}  
         </div>
         <div class="mb-3">                   
-          {{ form.carrera.label(class_="form-label")   }} 
-          {{ form.carrera(class="form-control", placeholder="-----")   }}  
+          {{ form.pregrado.label(class_="form-label")   }} 
+          {{ form.pregrado(class="form-control", id="pregrado",  value=session['datos_form'][9] , disabled="true")   }}  
         </div>
+        <br>
+        <div class="row">  
+          <div class="d-grid gap-2 col-6 mx-auto">
+             {{ form.guardar(class="btn btn-primary") }}
+          </div>
+      </div>
     </form>
     </div>
   </div>

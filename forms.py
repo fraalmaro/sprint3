@@ -1,8 +1,6 @@
 from wtforms import Form, StringField,IntegerField, PasswordField, BooleanField, SubmitField, validators, TextAreaField, SelectField,PasswordField, DateField
 from flask import  sessions, session
 
-from db import get_db
-
 class Formulario_Contacto(Form):
     nombre = StringField('Nombre y Apellido', 
     [ 
@@ -78,10 +76,7 @@ class info_Docente(Form):
         #default=post
      )
     asignatura = SelectField('Asignatura', choices=[('a1', 'Asignatura 1'), ('a2', 'Asignatura 2'), ('a3', 'Asignatura 3')])
-   # hacer consulta de lista de asignaturas en db
-   # db = get_db()
-   # lista_asignatura=db.execute("SELECT id_curso FROM rel_curso_actividad_usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
-    
+ 
     
     
     
@@ -104,11 +99,16 @@ class Formulario_Ingresar(Form):
     login = SubmitField('Login')
 
 class info_Estudiante(Form):
-    nombre = StringField('Nombre completo', 
+    nombre = StringField('Nombre',
     [ 
         validators.DataRequired('Campo Requerido para contacto'), 
         validators.Length(min=8,max=40)
     ] )
+    apellido = StringField('Apellidos', 
+    [ 
+        validators.DataRequired('Campo Requerido para contacto'), 
+        validators.Length(min=8,max=40),  
+    ])
     facultad = StringField('Facultad', 
     [ 
         validators.DataRequired('Campo Requerido para contacto'), 
@@ -124,16 +124,16 @@ class info_Estudiante(Form):
         validators.DataRequired('Campo Requerido para contacto'), 
         validators.Length(min=8,max=25) 
     ])
-    cedula = StringField('Número de Cedula',
+    cedula = IntegerField('Número de Cedula',
     [
         validators.DataRequired('Ingrese su nùmero de cedula')
     ])
-    telefono = StringField('Telefono/Celular', 
+    telefono = IntegerField('Telefono/Celular', 
     [ 
         validators.DataRequired('Campo Requerido para contacto'), 
         validators.Length(min=8,max=40)
     ] )
-    codigo = StringField('ID Estudiante', 
+    codigo = IntegerField('ID Estudiante', 
     [ 
         validators.DataRequired('Campo Requerido para contacto'), 
         validators.Length(min=8,max=40)
@@ -142,7 +142,13 @@ class info_Estudiante(Form):
     [ 
         validators.DataRequired('Campo Requerido para contacto'), 
     ] )
-    language = SelectField(u'Asignatura', choices=[('a1', 'Asignatura 1'), ('a2', 'Asignatura 2'), ('a3', 'Asignatura 3')])
+    pregrado = StringField('Programa', 
+        [ 
+            validators.DataRequired('Campo Requerido para contacto'), 
+            validators.Length(min=8,max=40)
+        ])
+
+    # language = SelectField(u'Asignatura', choices=[('a1', 'Asignatura 1'), ('a2', 'Asignatura 2'), ('a3', 'Asignatura 3')])
     guardar = SubmitField('Guardar')
 
 #Claudio
