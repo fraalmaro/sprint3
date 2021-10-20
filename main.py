@@ -236,10 +236,13 @@ def infoestudiante():
     if request.method == 'POST': #and form.validate(): 
         nombre = request.form['nombre']
         apellido = request.form['apellido']
+        fechaNac = request.form['fechaNac']
         correo = request.form['correo']
-        #cedula = request.form['cedula']
-        #pregrado = request.form['pregrado']
-        #postgrado = request.form['postgrado']
+        telefono = request.form['telefono']
+        cedula = request.form['cedula']
+        codigo = request.form['codigo']
+        facultad = request.form['facultad']
+        carrera = request.form['carrera']
         
         #1. Validar datos de contacto:
         if not( isNameValid(nombre) or isNameValid(apellido) ):
@@ -250,14 +253,14 @@ def infoestudiante():
             # Si está mal.
             error = "Correo invalido"
             flash(error)
-        if not isCedulaValid(cedula): 
+        if not(isCedulaValid(cedula) or isCedulaValid(telefono)): 
         #  Si está mal.
             error = "Numero de cedula invalido"
             flash(error)
         if error is not None:
             # Ocurrió un error
-            form = info_Docente(request.form)
-            return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
+            form = info_Estudiante(request.form)
+            return render_template("admin/infoestudiante.html", form=form, titulo="Información de Estudiante")
             pass
         else:
             db = get_db() 
@@ -271,20 +274,19 @@ def infoestudiante():
             close_db()
             #print("cerré la base de datos")
             session['datos_form'] = consulta_inicio
-            form = info_Docente(request.form)
-            return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
+            form = info_Estudiante(request.form)
+            return render_template("admin/infodocente.html", form=form, titulo="Información de Estudiante")
     else:
-        #recien entra al link infodocente.html....   
+        #recien entra al link infoestudiante.html....   
         print("entro con GET")
         session['gps']="Perfil" #breadcrumb
-        session['link']="infodocente"#breadcrumb
+        session['link']="infoestudiante"#breadcrumb
         db = get_db() 
         consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
         session['datos_form'] = consulta_inicio
-        print("ya hice el formulario, y le puse los valores de la consulta")
-        form = info_Docente(request.form)
+        form = info_Estudiante(request.form)
         close_db()
-        return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
+        return render_template("admin/infoestudiante.html", form=form, titulo="Información de Estudiante")
 
 #Claudio
 @app.route('/creacionactividaddocente', methods=['GET', 'POST'])
