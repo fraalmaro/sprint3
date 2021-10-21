@@ -88,6 +88,13 @@ def gracias():
     return render_template("gracias.html", titulo='Gracias')
 
 #franklin
+@app.route('/home', methods=['GET', 'POST'])
+def home():
+    session['gps']="Inicio" #breadcrumb
+    session['link']="infodocente"#breadcrumb
+    return render_template("admin/home.html", titulo=session['nombre_rol'])
+
+
 @app.route('/infodocente', methods=['GET', 'POST'])
 def infodocente():
     #try:
@@ -263,16 +270,16 @@ def ingresar():
                     session['nombre_logueado'] = user[4]
                     session['apellido_logueado'] = user[5]
                     session['nombre_rol'] = rol[1]
-                    if user[1] == 1:
-                        return redirect( url_for( 'paneladmin' ) )
+                    # if user[1] == 1:
+                    #     return redirect( url_for( 'paneladmin' ) )
                         
-                    if user[1] == 2:
-                        return redirect( url_for( 'infodocente' ) )
-                       #return render_template("admin/infodocente.html")
-                    if user[1] == 3:
-                        return redirect( url_for( 'infoestudiante' ) )
-                    else:
-                        return render_template("admin/paneladmin.html", form=form, titulo='Panel de Error')
+                    # if user[1] == 2:
+                    #     return redirect( url_for( 'home' ) )
+                    #    #return render_template("admin/infodocente.html")
+                    # if user[1] == 3:
+                    return redirect( url_for( 'home' ) )
+                    #el home tendrá el menu para cargar las paginas. todo esta en la sesion
+                    
 
         else:
             #flash("No entro if POST")

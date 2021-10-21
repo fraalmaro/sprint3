@@ -1,0 +1,61 @@
+{% extends 'admin/baseadmin.html' %}
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+</div>
+{% endblock %}
+
+
+{% block areatrabajo %}
+      <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-inner" >
+          <div class="carousel-item active" data-bs-interval="10000" >
+            <img src="..\static\img\inicio_usuarios\1.png" class="d-block w-100" alt="img1">
+          </div>
+          <div class="carousel-item">
+            <img src="..\static\img\inicio_usuarios\2.jpg" class="d-block w-100" alt="img2" >
+          </div>
+          <div class="carousel-item">
+            <img src="..\static\img\inicio_usuarios\3.jpg" class="d-block w-100" alt="img3">
+          </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+    
+      </div>   
+        
+    <hr class="featurette-divider">
+
+         
+
+   
+<br><br>
+{% endblock %}
+        <!-- <div class="container">   # en elaboracion.
+          <div class="row">
+            <div class="col-11 text-xl-start">
+               <h3 class="text-center">Asignaturas a Cargo</h3>
+            </div>
+          </div>
+          {{ form.asignatura.label(class_="form-label")   }} 
+            {{ form.asignatura(class="form-control", id="Asignaturas")   }}
+            <table class="table-secondary">
+              <tbody>
+                {%- for column in columns %}
+                    <tr scope="row">{{ row|attr(column) }}</tr>
+                {%- endfor %}
+              </tbody>
+            </table> 
+        
+        
+          </div>-->
+
+   
+
