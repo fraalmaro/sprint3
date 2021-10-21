@@ -3,9 +3,10 @@ from flask import Flask, flash, redirect, render_template, request, sessions, ur
 from werkzeug.utils import html #agregada por franklin
 from utils import isCedulaValid, isUsernameValid, isEmailValid, isPasswordValid, isNameValid, isUsernameValidFacil, isPasswordValidFacil
 #import yagmail as yagmail
-from forms import Formulario_Contacto, info_Docente, Formulario_Ingresar, info_Estudiante, crear_Actividad,registrar_Estudiante, registrar_Docente
+from forms import Crear_Comentario, Formulario_Contacto, info_Docente, Formulario_Ingresar, info_Estudiante, crear_Actividad,registrar_Estudiante, registrar_Docente
 from db import get_db, close_db
 import functools
+from werkzeug.security import generate_password_hash, check_password_hash #para el cifrado
 
 
 app = Flask(__name__)
@@ -23,6 +24,7 @@ def login_required(view):
 @app.route('/index')
 def index():    
     return render_template("index.html", titulo='Escuela Colombiana de Ingeniería Julio Garavito')
+
 
 #Formulario de Contacto
 @app.route('/contacto', methods=['GET', 'POST'])
@@ -64,26 +66,102 @@ def contacto():
 #Accesiones Generales
 @app.route('/consultaractividades', methods=['GET', 'POST'])#lista las actividades 
 def consultaractividades():
-    session['gps']="Ver o modificar actividades"
+     
     db = get_db()
-    actividades =  db.execute('SELECT * FROM actividades INNER JOIN tipo_actividad ON actividades.id_tipo_actividad = tipo_actividad.id_tipo_actividad').fetchall()
+    #se que usario esta logueado para poder hacer el filtrado de actividades si es root lista todas las actividades, si es docente solo muestra sus actividades y si es alumno solo los del curso inscrito
+    session['user_logueado']#id
+    session['rol_logueado']#rol 1 admin - 2 docente - 3 estudiante
+    if session['rol_logueado'] == 1:
+        actividades =  db.execute('SELECT * FROM actividades INNER JOIN tipo_actividad ON actividades.id_tipo_actividad = tipo_actividad.id_tipo_actividad INNER JOIN asignaturas ON actividades.id_asignatura = asignaturas.id_asignatura').fetchall()
+    elif session['rol_logueado'] !=1 and session['rol_logueado'] !=2: #Alumnos
+        actividades =  db.execute('SELECT * FROM curso_alumnos INNER JOIN rel_curso_actividad_usuario ON rel_curso_actividad_usuario.id_curso = curso_alumnos.id_curso INNER JOIN actividades ON actividades.id_actividad = rel_curso_actividad_usuario.id_actividad INNER JOIN tipo_actividad ON tipo_actividad.id_tipo_actividad = actividades.id_tipo_actividad INNER JOIN asignaturas ON asignaturas.id_asignatura = actividades.id_asignatura WHERE curso_alumnos.id_usuario = ?',(session['user_logueado'],)).fetchall()
+        print(actividades) 
+    else:
+        actividades =  db.execute('SELECT * FROM rel_curso_actividad_usuario INNER JOIN actividades ON rel_curso_actividad_usuario.id_actividad = actividades.id_actividad INNER JOIN tipo_actividad ON tipo_actividad.id_tipo_actividad = actividades.id_tipo_actividad INNER JOIN asignaturas ON asignaturas.id_asignatura = actividades.id_asignatura WHERE rel_curso_actividad_usuario.id_usuario = ?',(session['user_logueado'],)).fetchall()
+
     if actividades is None:
         error = "No se han creado actividades"
         flash(error)
         return render_template("admin/actividades/consultaractividades.html", titulo="Listado de Actividades")
     else:
-        for i in range(len(actividades)):
-            for j in range(len(actividades[i])):
-                print(actividades[i][j], end=' ')
-            print()
-        
+        session['gps'] = "Actividades"
+        #session['link'] = ""
         session['actividades'] = actividades
+
     return render_template("admin/actividades/consultaractividades.html")
 
-@app.route('/comentariosactividad', methods=['GET', 'POST'])
-def comentariosactividad():
-    session['gps']="Ver mensajes"    
-    return render_template("admin/comentariosactividad.html")
+
+@app.route('/comentariosactividad/<int:n1>', methods=['GET', 'POST'])
+def comentariosactividad(n1):  
+    session['gps'] = "Actividades"
+    session['link'] = "consultaractividades"
+    form = Crear_Comentario(  request.form  )  
+    id_actividad = n1
+    db = get_db()
+    mensajesfull =  db.execute('SELECT mensaje,nombre_usuario,Apellido_usuario FROM rel_mensajes_actividades_usuario INNER JOIN usuario ON usuario.id_usuario = rel_mensajes_actividades_usuario.id_usuario WHERE rel_mensajes_actividades_usuario.id_actividad = ? AND eliminado = 0 ',(id_actividad,)).fetchall()
+    actividad =  db.execute('SELECT * FROM actividades WHERE id_actividad = ?',(id_actividad,)).fetchone()
+    if mensajesfull is None:
+        error = "La actividad solicitada no tiene comentarios"
+        flash(error)
+        return redirect(url_for('consultaractividades'))
+    else:
+        session['mensajesfull'] = mensajesfull
+        session['actividad'] = actividad
+        redirect(url_for('consultaractividades'))
+    return render_template("admin/comentariosactividad.html", form=form)
+
+@app.route('/guardarcomentario', methods=['GET', 'POST'])
+def guardarcomentario():
+    try:
+        form = Crear_Comentario(request.form)
+        n1 = request.form['actividad'] 
+        logueadouser = request.form['userlogueado'] 
+        error = None
+        if request.method == 'POST': 
+            mensaje = request.form['mensaje']
+            
+            print("===", n1)
+            print("===", logueadouser)
+            print("===", mensaje)
+            if error is not None:
+                # Ocurrió un error
+                return render_template("admin/comentariosactividad.html", form=form, n1=n1, titulo="Comentario Actividad")
+            else:
+                form = Crear_Comentario()
+                db = get_db()
+                db.execute('INSERT INTO rel_mensajes_actividades_usuario (id_actividad, id_usuario, mensaje, eliminado) VALUES (?, ?, ?, ?)',(n1, logueadouser, mensaje, 0))
+                db.commit()
+                flash("Mensaje asignado a la tarea")
+                return render_template("admin/actividades/consultaractividades.html")
+
+        return render_template("admin/comentariosactividad.html", form=form, n1=n1, titulo="Comentario Actividad")
+    except:
+        flash("¡Ups! Ha ocurrido un error, intentelo de nuevo.")
+        return render_template("admin/comentariosactividad.html", n1=n1, titulo="Comentario Actividad")
+
+@app.route('/listarcomentariosEliminar', methods=['GET', 'POST'])
+def listarcomentariosEliminar():
+    
+    session['listarcomentariosEliminar'] = "listarcomentarios"
+    session['gps'] = "Lista de actividades"   
+    return render_template("admin/listarcomentarios.html", titulo="Lista de actividades")
+
+@app.route('/listarcomentariosEliminar/<int:lista>', methods=['GET', 'POST'])
+def vercomentarios(lista):
+    id_actividad = lista
+    
+    session['gps'] = "Lista de actividades" 
+    db = get_db()
+    mensajesfull =  db.execute('SELECT id, mensaje,nombre_usuario,Apellido_usuario FROM rel_mensajes_actividades_usuario INNER JOIN usuario ON usuario.id_usuario = rel_mensajes_actividades_usuario.id_usuario WHERE rel_mensajes_actividades_usuario.id_actividad = ? AND eliminado = 0 AND rel_mensajes_actividades_usuario.id_usuario = ?',(id_actividad,session['user_logueado'])).fetchall()
+    actividad =  db.execute('SELECT * FROM actividades WHERE id_actividad = ?',(id_actividad,)).fetchone()
+    if mensajesfull is None:
+        error = "La actividad solicitada no tiene comentarios"
+        flash(error)
+        return redirect(url_for('consultaractividades'))
+    else:
+        session['mensajesfull'] = mensajesfull
+        session['actividad'] = actividad[0]
+    return render_template("admin/listarcomentarios.html")
 
 @app.route('/gracias', methods=['GET', 'POST'])
 def gracias():
@@ -91,34 +169,40 @@ def gracias():
 
 #franklin
 @app.route('/home', methods=['GET', 'POST'])
-def home():
+def home(): #----------------------------------------------------------->home
    
     session['gps']="Inicio" #breadcrumb
     if session['rol_logueado']==2:   #dependiendo el usuario se modifican aqui las direcciones url a donde deben ir,
-        session['perfil']="infodocente"
+        session['perfil']="infodocente" 
         session['cursos']="cursosdocente" 
         session['buscacursos']="busquedacursos" 
-        session['mensajes']="comentariosactividad"
-        session['actividad']="creacionactividaddocente"
+        session['mensajes']="consultaractividades"
+        session['creacionactividad']="creacionactividaddocente"
         session['veractividad']="consultaractividades"
         session['notas']="notasdocente"
         session['calificacionespublicadas']="calificacionespublicadas"
     elif session['rol_logueado']==3:
         session['perfil']="infoestudiante"
-        # session['cursos']="cursosdocente" 
-        # session['buscacursos']="busquedacursos" 
-        # session['mensajes']="comentariosactividad"
-        # session['actividad']="creacionactividaddocente"
-        # session['veractividad']="consultaractividades"
+        session['mensajes']="consultaractividades"
+        session['buscacursos']="busquedacursos" 
+        session['veractividad']="consultaractividades"
         session['notas']="notasestudiante"
     else:
-        pass # urls de admin - falta esto -
+        session['perfil']="infodocente"      # a falta de ventanas coloco las mismas para que no se cuelgue. ya el menu divide todo
+        session['cursos']="cursosdocente" 
+        session['buscacursos']="busquedacursos" 
+        session['mensajes']="consultaractividades"
+        session['creacionactividad']="creacionactividaddocente"
+        session['veractividad']="consultaractividades"
+        session['notas']="notasdocente"
+        session['calificacionespublicadas']="calificacionespublicadas"
+       
     return render_template("admin/home.html", titulo=session['nombre_rol'])
 
 
 @app.route('/infodocente', methods=['GET', 'POST'])
 def infodocente():
-    #try:
+    try:
         error = None
         if request.method == 'POST': #and form.validate():  
             #print("ya presionaron guardar, ENTRANDO CON EL POST")
@@ -174,9 +258,9 @@ def infodocente():
             close_db()
             return render_template("admin/infodocente.html", form=form, titulo="Información de Docente")
     
-    #except:
-     #   flash("¡Ups! Ha ocurrido un error, intentelo de nuevo.")
-      #  return render_template("admin/infodocente.html", form=form,titulo="Información de Docente")
+    except:
+       flash("¡Ups! Ha ocurrido un error, intentelo de nuevo.")
+       return render_template("admin/infodocente.html", form=form,titulo="Información de Docente")
 
 
 #Decoradores informacion estudiante
@@ -219,10 +303,9 @@ def infoestudiante():
             # print("ya ejecute el SQL y debi actualizar")
             flash("Valores actualizados con éxito")
             consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
-            #flash("la consulta de select "+ str(consulta_inicio))
-            #print("confirmé que si actualicé")
+
             close_db()
-            #print("cerré la base de datos")
+          
             session['datos_form'] = consulta_inicio
             form = info_Estudiante(request.form)
             return render_template("admin/infoestudiante.html", form=form, titulo="Información de Estudiante")
@@ -258,6 +341,12 @@ def notasdocente():
     
     return render_template("admin/notasdocente.html", titulo="Calificaciones de Estudiante")
 
+@app.route('/logout')
+def  cerrarsesion():
+    session.clear()
+    
+    return redirect(url_for("ingresar"))
+
 #Gabriel
 #Formulario de Ingreso
 @app.route('/ingresar', methods=['GET', 'POST'])
@@ -284,34 +373,32 @@ def ingresar():
                 return render_template("ingresar.html", form=form, titulo="Iniciar Sesión")
             else:
                 db = get_db()
-                user =  db.execute('SELECT * FROM usuario WHERE user_usuario = ? AND password_usuario = ?',(usuario, contrasena)).fetchone()
-                
+                #user =  db.execute('SELECT * FROM usuario WHERE user_usuario = ? AND password_usuario = ?',(usuario, contrasena)).fetchone()
+                user =  db.execute('SELECT id_usuario, id_rol, user_usuario, password_usuario, nombre_usuario, apellido_usuario FROM usuario WHERE user_usuario = ?',(usuario,)).fetchone() 
+                print(user) 
                 if user is None:
                     error = "Usuario no Existe en la Base de Datos"
                     flash(error)
-                    form = Formulario_Ingresar( )
-                    return render_template("ingresar.html", form=form, titulo="Iniciar Sesión")
-                else:
-                    rol =  db.execute('SELECT * FROM rol WHERE id_rol = ?',(user[1],)).fetchone()
-                    
-                    session['user_logueado'] = user[0] #id
-                    session['rol_logueado'] = user[1]
-                    session['nombre_logueado'] = user[4]
-                    session['apellido_logueado'] = user[5]
-                    session['nombre_rol'] = rol[1]
-                    # if user[1] == 1:
-                    #     return redirect( url_for( 'paneladmin' ) )
+                else:                
+                    usuario_valido = check_password_hash(user[3],contrasena)
+                    if not usuario_valido:
+                        error = "Usuario y/o contraseña no son correctos."
+                        flash( error )  
+                        form = Formulario_Ingresar( )
+                        return render_template("ingresar.html", form=form, titulo="Iniciar Sesión")
+                    else:
+                        rol =  db.execute('SELECT * FROM rol WHERE id_rol = ?',(user[1],)).fetchone()
                         
-                    # if user[1] == 2:
-                    #     return redirect( url_for( 'home' ) )
-                    #    #return render_template("admin/infodocente.html")
-                    # if user[1] == 3:
+                        session['user_logueado'] = user[0] #id
+                        session['rol_logueado'] = user[1]
+                        session['nombre_logueado'] = user[4]
+                        session['apellido_logueado'] = user[5]
+                        session['nombre_rol'] = rol[1]
+                        
                     return redirect( url_for( 'home' ) )
-                    #el home tendrá el menu para cargar las paginas. todo esta en la sesion
-                    
-
+        
         else:
-            #flash("No entro if POST")
+        
             form = Formulario_Ingresar( )
             return render_template("ingresar.html", form=form, titulo="Iniciar Sesión")
     #except:
@@ -434,3 +521,68 @@ def registrousuariodocente():
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     return render_template("admin/dashboard.html", titulo="Dashboard")
+
+
+#registro de contraseñas-------------------------------21-10-21
+@app.route('/registrocontrasenas', methods=['GET', 'POST'])
+def registrocontraseñas():
+    #try:
+        if request.method == 'POST':   
+            
+            password = request.form['password']
+            password2 = request.form['password2']
+            
+            db = get_db()
+             #cambiar a id de usuario logeado
+            id =  db.execute('SELECT id_usuario FROM usuario WHERE user_usuario = ?',(session['user_logueado'],)).fetchone() 
+
+            error = None
+            
+            
+            if not password:
+                error = "Contraseña requerida."
+                flash(error)
+            if not password2:
+                error = "Contraseña requerida."
+                flash(error)
+            #1. Validar usuario, email y contraseña:
+            #if not isUsernameValid(usuario):
+                # Si está mal.
+            #    error = "El usuario debe ser alfanumerico o incluir solo '.','_','-'"
+            #    flash(error)
+            #if not isEmailValid(email):
+                # Si está mal.
+            #    error = "Correo invalido"
+            #    flash(error)
+            #if not isPasswordValid(password):
+                # Si está mal.
+            #    error = "La contraseña debe contener al menos una minúscula, una mayúscula, un número y 8 caracteres"
+            #    flash(error)
+                      
+            if password2 != password:
+                error = "Las contraseñas no coinciden"
+                flash(error)
+
+            if error is not None:
+                # Ocurrió un error
+                return render_template("registrocontraseñas.html")
+            else:
+                # Seguro:
+                password_cifrado = generate_password_hash(password)
+                db.execute(
+                    
+                    "UPDATE usuario SET password_usuario = '{}' WHERE id_usuario = '{}'".format(password_cifrado,id)
+                )
+                db.commit()
+                #2. Enviar un correo.
+                # Para crear correo:                                    
+                # Modificar la siguiente linea con tu informacion personal            
+                 #yag = yagmail.SMTP('yeffersone@uninorte.edu.co','NN')
+                #yag.send(to='yeffersone@uninorte.edu.co', subject='contacto web, '+nombre, contents=mensaje, headers={"Reply-To":f"{correo}"})
+                #    contents='Bienvenido, usa este link para activar tu cuenta ')
+                flash('Contraseña Modificada con exito')
+
+                #3. redirect para ir a otra URL
+                return redirect( url_for( 'ingresar' ) )
+
+        return render_template("registrocontraseñas.html")

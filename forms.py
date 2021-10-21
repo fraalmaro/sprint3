@@ -1,4 +1,4 @@
-from wtforms import Form, StringField,IntegerField, PasswordField, BooleanField, SubmitField, validators, TextAreaField, SelectField,PasswordField, DateField
+from wtforms import Form, StringField,IntegerField, PasswordField, BooleanField, SubmitField, validators, TextAreaField, SelectField,PasswordField, DateField, HiddenField
 from flask import  sessions, session
 
 class Formulario_Contacto(Form):
@@ -17,11 +17,19 @@ class Formulario_Contacto(Form):
         validators.DataRequired('Campo Requerido para contacto')
     ])
     enviar = SubmitField('Enviar')
-    
 
+#yefferson comentarios
 class Crear_Comentario(Form):
-    mensaje = TextAreaField('Comentario')
+    mensaje = TextAreaField('Comentario',[validators.DataRequired('Campo Requerido ')])
+    actividad =  HiddenField('id actividad')
+    userlogueado = HiddenField('userlogueado')
     enviar = SubmitField('Enviar')
+
+class listar_actividad(Form):
+    listaactividades = SelectField(u'Lista de asignaturas', default=("Seleccionar"))
+
+    enviar = SubmitField('buscar')
+
 
 #Franklin
 class info_Docente(Form):  

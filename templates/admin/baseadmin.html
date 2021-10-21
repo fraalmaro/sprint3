@@ -30,13 +30,13 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                   <ul class="navbar-nav me-auto mb-2 mb-md-0">
                     <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="index">Inicio</a>
+                      <a class="nav-link active" aria-current="page" href="url_for(index)">Inicio</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="contacto">Contacto</a>
+                      <a class="nav-link" href="url_for(contacto)">Contacto</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="ingresar">Ingresar</a>
+                      <a class="nav-link" href="url_for(ingresar)">Ingresar</a>
                     </li>
                   </ul>
                 </div>
@@ -87,7 +87,7 @@
                             <div id="flush-headingUsuario" class="accordion-collapse collapse" aria-labelledby="flush-headingUsuario" data-bs-parent="#accordionFlushExample">
                               <div class="accordion-body">
                                 <div class="d-grid gap-2">
-                                      <a class="btn btn-primary" href="#" role="button">Ver usuarios</a> 
+                                      <a class="btn btn-primary" href="/registrodeusurioEstudiante" role="button">Ver o crear usuarios</a> 
                                       <a class="btn btn-primary" href="#" role="button">Modificar usuarios</a>
                                       <a class="btn btn-primary" href="#" role="button">Eliminar usuarios</a>  
                                 </div>
@@ -97,7 +97,7 @@
                       {%else%}                   
                       <div class="accordion-item">
                           <h2 class="accordion-header" id="flush-headingOne"> 
-                                  <a href="{{session['perfil']}}">  <button class="accordion-button collapsed" type="button">Perfil</button></a>
+                                  <a href="{{url_for(session['perfil'])}}">  <button class="accordion-button collapsed" type="button">Perfil</button></a>
                           </h2>
                       </div>
                       {%endif%}
@@ -143,13 +143,13 @@
                             <div id="flush-collapseFive" class="accordion-collapse collapse" aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
                               <div class="accordion-body">
                                 <div class="d-grid gap-2">
-                                      <a class="btn btn-primary" href="{{session['mensajes']}}" role="button">Ver mensajes</a> 
-                                      <a class="btn btn-primary" href="#" role="button">Escribir mensaje</a>
-                                      {% if session['rol_logueado'] == 2 %}
+                                      <a class="btn btn-primary" href="{{url_for(session['mensajes'])}}" role="button">Mensajes</a> 
+                                     <!--  {% if session['rol_logueado'] == 2 %}
                                       <a class="btn btn-primary" href="#" role="button">Responder mensajes</a>
-                                      {%endif%}
+                                      <a class="btn btn-primary" href="{{session['listarcomentariosEliminar']}}" role="button"> LCEResponder mensajes</a>
+                                      {%endif%}  por si se necesita otro boton-->   
                                       {% if session['rol_logueado'] == 1 %}
-                                      <a class="btn btn-primary" href="#" role="button">Administrar y monitorear Mensajes</a> <!--aun cuando se acabe el tiempo de subir notas o el curso este cerrado-->
+                                      <a class="btn btn-primary" href="{{url_for(session['mensajes'])}}" role="button">Administrar y monitorear Mensajes</a> <!--aun cuando se acabe el tiempo de subir notas o el curso este cerrado-->
                                       {%endif%}
                                 </div>
                               </div>
@@ -167,10 +167,10 @@
                               <div class="accordion-body">
                                 <div class="d-grid gap-2">
                                       {% if session['rol_logueado'] == 3 %}
-                                      <a class="btn btn-primary" href="#" role="button">Actividades</a> 
+                                      <a class="btn btn-primary" href="{{url_for(session['veractividad'])}}" role="button">Actividades</a> 
                                       {%else%}
-                                      <a class="btn btn-primary" href="{{session['veractividad']}}" role="button">Ver o modificar actividades</a>
-                                      <a class="btn btn-primary" href="{{session['actividad']}}" role="button">Crear nueva actividad</a>
+                                      <a class="btn btn-primary" href="{{url_for(session['veractividad'])}}" role="button">Ver o modificar actividades</a>
+                                      <a class="btn btn-primary" href="{{session['creacionactividad']}}" role="button">Crear nueva actividad</a>
                                         {% if session['rol_logueado'] == 1 %}
                                         <a class="btn btn-primary" href="#" role="button">Administrar y monitorear Mensajes</a> <!--aun cuando se acabe el tiempo de subir notas o el curso este cerrado-->
                                         {%endif%}
@@ -192,8 +192,8 @@
                           <div class="accordion-body">
                             <div class="d-grid gap-2">
                                    
-                                  <a class="btn btn-primary" href="{{session['calificacionespublicadas']}}" role="button">Calificaciones publicadas</a>
-                                  <a class="btn btn-primary" href="{{session['notas']}}" role="button">Consultar y calificar actividades</a>
+                                  <a class="btn btn-primary" href="{{url_for(session['calificacionespublicadas'])}}" role="button">Calificaciones publicadas</a>
+                                  <a class="btn btn-primary" href="{{url_for(session['notas'])}}" role="button">Consultar y calificar actividades</a>
                                   {% if session['rol_logueado'] == 1 %}
                                   <a class="btn btn-primary" href="#" role="button">Modificar o eliminar calificaciones</a> <!--aun cuando se acabe el tiempo de subir notas o el curso este cerrado-->
                                   {%endif%}
@@ -204,7 +204,7 @@
                       {%else%}    
                       <div class="accordion-item">
                         <h2 class="accordion-header" id="flush-Calificacion">
-                          <a href="{{session['notas']}}">
+                          <a href="{{url_for(session['notas'])}}">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseCalificacion" aria-expanded="false" aria-controls="flush-collapseCalificacion">
                              Calificaciones
                           </button></a>
@@ -216,7 +216,7 @@
                       
                       <div class="accordion-item">
                           <h2 class="accordion-header" id="flush-headingcerrar">
-                            <a href="ingresar">
+                            <a href="logout">
                                 <button class="accordion-button collapsed" type="button" >
                                   Cerrar Sesion  <!-- falta hacer el sesion clear-->
                                 </button>
@@ -246,9 +246,13 @@
                     {% block breadcrumbs %}
                         <nav aria-label="breadcrumb">
                           <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="home" >Home {{session['nombre_rol']}} </a></li>
-                            {% if session['gps']!="Inicio"%}
-                            <li class="breadcrumb-item active" aria-current="page">{{session['gps']}}</li>
+                            <li class="breadcrumb-item"><a href="{{url_for('home')}}" >Home {{session['nombre_rol']}} </a></li>
+                            {% if session['gps']!="Inicio" and session['gps']!="Actividades" %}
+                             <li class="breadcrumb-item active" aria-current="page">{{session['gps']}}</li>
+                             {%endif%}
+                             {% if session['gps']=="Actividades"%}
+                              <li class="breadcrumb-item active" aria-current="page"><a href="{{url_for('consultaractividades')}}" >{{session['gps']}}</a></li>
+                            
                             {%endif%}
                           </ol>
                         </nav>
@@ -266,9 +270,11 @@
             </div><!-- /.container -->
             <!-- FOOTER -->
             <footer class="container">
-                <p class="float-end"><a href="#">Back to top</a></p>
-                <p>&copy; 2017–2021 Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
-            </footer>
+              
+    
+              <p class="float-end"><a href="#inicio">Back to top</a></p>
+              <p>&copy; 2017–2021 Company, Inc. &middot; Escuela Colombiana de Ingeniería Julio Garavito. Personería Jurídica 086 de enero 19 de 1973. Renovación de Acreditación Institucional de Alta Calidad. Resolución 002710 del 18 de marzo de 2019 (vigencia de 6 años). Vigilada por Mineducación.</p>
+             </footer>
         </main>  
       <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"> </script>   
          

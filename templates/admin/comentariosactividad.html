@@ -16,9 +16,9 @@
                   <img src="{{ url_for('static', filename='img/file.png') }}" alt="file" class="img-fluid rounded" />
               </div>
               <div class="col-11 text-xl-start">
-                 <h4>Nombre de la Actividad</h4>
-                 <p>Nombre del curso - Nombre del docente</p>
-                 <p class="text-end"><em>Fecha de entrega</em></p>
+                 <h4>Actividad {{session['actividad'][0]}}</h4>
+                 <p>Codigo del curso: {{session['actividad'][5]}}</p>
+                 <p class="text-end"><em>Fecha de entrega: </em>{{session['actividad'][3]}}</p>
               </div>
             </div>
       </div>
@@ -26,13 +26,13 @@
       <div class="container">
             <div class="row align-items-start">
               <div class="col-7 border">
-                  Descripción de la actividad
+                  {{session['actividad'][1]}}
               </div>
               <div class="col"></div>
               <div class="col-4 border">
                  <h5 class="text-center"><strong>Valoración</strong></h5>
-                 <p>Nombre del curso - Nombre del docente</p>
-                 <p class="text-end"><em>Fecha de entrega</em></p>
+                 <p>{{session['actividad'][6]}}</p>
+                 <!--<p class="text-end"><em>Fecha de entrega</em></p>-->
               </div>
             </div>
       </div>
@@ -41,40 +41,46 @@
             <div class="row align-items-start">
               <div class="col border">
                   <h4>Documentos adjuntos</h4>
-                  <ul class="list-group">
+                  {{session['actividad'][4]}}
+                  <!--<ul class="list-group">
                     <li class="list-group-item">Cras justo odio</li>
                     <li class="list-group-item">Dapibus ac facilisis in</li>
                     <li class="list-group-item">Morbi leo risus</li>
                     <li class="list-group-item">Porta ac consectetur ac</li>
                     <li class="list-group-item">Vestibulum at eros</li>
-                  </ul>
+                  </ul>-->
               </div>
             </div>
       </div>
       <hr class="featurette-divider">
       <div class="container">
         <div class="row align-items-start">
+          {%for mensaje, nombre, apellido in session['mensajesfull']%}
           <div class="row" style="margin-bottom: 0.5em;">
-            <div class="col-10" style="background-color: coral;">dd</div>
+            <div class="col-10" style="background-color: coral;"><p class="text-start" style="padding-top: 1em;">{{mensaje}}</p></div>
             <div class="col-2"><img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail" />
+              <p>{{nombre}} {{apellido}}</p>
             </div>
           </div>
-          <div class="row">
+          {%endfor%}
+          <!--<div class="row">
             <div class="col-2"><img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail" />
             </div>
             <div class="col-10" style="background-color:rgb(241, 216, 114);">dd</div>
             
-          </div>
+          </div>-->
         </div>
       </div>
       <hr />
-      <form>
+      <form action="{{ url_for('guardarcomentario') }}" method="post" name="formRegistro" onsubmit="validar_formulario();" >
+        {{form.actividad(value=session['actividad'][0])}}
+        {{form.userlogueado(value=session['user_logueado'])}}
         <div class="mb-3">
-          <label for="exampleFormControlTextarea1" class="form-label">Agregar un Nuevo Comentario</label>
-          <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+           {{ form.mensaje.label(class_="form-label")  }} 
+           {{ form.mensaje(class="form-control")  }}
           <br />
           <div class="col-auto">
-            <button type="submit" class="btn btn-primary mb-3">Enviar Comentario</button>
+            {{ form.enviar(class="btn btn-primary mb-3")  }}
           </div>
         </div>
       </form>      

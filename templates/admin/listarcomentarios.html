@@ -1,0 +1,40 @@
+{% extends 'admin/baseadmin.html' %}
+
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+</div>
+{% endblock %}
+
+{% block areatrabajo %}
+      <h3 class="text-center">Listar Comentarios de Actividad - {{ session['actividad'] }}</h3>
+     
+
+
+      <hr class="featurette-divider">
+      <h4>Tus Comentarios</h4>
+      <div class="container">
+    
+      
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Comentario</th>
+              <th scope="col">Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for id, mensaje, nombre, apellido in session['mensajesfull']%}
+            <tr>
+              <td>{{mensaje}}</td>
+              <td>@mdo</td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+</div>
+      
+      
+{% endblock %}
+

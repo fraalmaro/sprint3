@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Formulario de registro{% endblock %}</h1>
+{% endblock %}
+
+{% block contenido %}
+
+    <center>
+                                  
+        <script>
+            var cadena = "Hola";
+            
+        </script>
+        
+        <form action="{{ url_for('registrocontraseñas') }}" method="post" name="formRegistro" onsubmit="validar_formulario();" >
+           
+
+            <div>
+                <label for="password">Nueva Contraseña</label>
+                <input type="password" name="password" id="password">
+                
+            </div>
+            <br />
+            <div>
+                <label for="password2">Confirmar Nueva Contraseña</label>
+                <input type="password" name="password2" id="password2">
+                
+            </div>
+            <br />
+            
+            <div>
+                <input id="enviar" type="submit" value="Enviar"  >
+            </div>
+            <br />
+        </form>
+        <br />
+    </center>
+
+{% endblock %}
