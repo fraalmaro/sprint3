@@ -76,15 +76,32 @@
                             </h2>
                         </div>                  
                         <!-- perfil o usuario-->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="flush-headingOne">
-                                {% if session['rol_logueado'] == 1 %}  
-                                    <a href="usuarios">  <button class="accordion-button collapsed" type="button">Usuarios</button></a>
-                                {% else %} 
-                                    <a href="{{session['link']}}">  <button class="accordion-button collapsed" type="button">Perfil</button></a>
-                                {%endif%}
-                            </h2>
-                        </div>
+                    {%if session['rol_logueado']== 1 %}
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingUsuario">
+                          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-headingUsuario" aria-expanded="false" aria-controls="flush-headingUsuario">
+                            Usuarios
+                          </button>
+                        </h2>
+                            <!--collapser-->
+                            <div id="flush-headingUsuario" class="accordion-collapse collapse" aria-labelledby="flush-headingUsuario" data-bs-parent="#accordionFlushExample">
+                              <div class="accordion-body">
+                                <div class="d-grid gap-2">
+                                      <a class="btn btn-primary" href="#" role="button">Ver usuarios</a> 
+                                      <a class="btn btn-primary" href="#" role="button">Modificar usuarios</a>
+                                      <a class="btn btn-primary" href="#" role="button">Eliminar usuarios</a>  
+                                </div>
+                              </div>
+                           </div>
+                      </div>
+                      {%else%}                   
+                      <div class="accordion-item">
+                          <h2 class="accordion-header" id="flush-headingOne"> 
+                                  <a href="{{session['link']}}">  <button class="accordion-button collapsed" type="button">Perfil</button></a>
+                          </h2>
+                      </div>
+                      {%endif%}
+                      <!-- fin perfil o usuarios-->
                       <!--cursos -->
                       {% if session['rol_logueado'] == 1 %} 
                       <div class="accordion-item">
