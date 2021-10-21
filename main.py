@@ -64,6 +64,7 @@ def contacto():
 #Accesiones Generales
 @app.route('/consultaractividades', methods=['GET', 'POST'])#lista las actividades 
 def consultaractividades():
+    session['gps']="Ver o modificar actividades"
     db = get_db()
     actividades =  db.execute('SELECT * FROM actividades INNER JOIN tipo_actividad ON actividades.id_tipo_actividad = tipo_actividad.id_tipo_actividad').fetchall()
     if actividades is None:
@@ -80,7 +81,8 @@ def consultaractividades():
     return render_template("admin/actividades/consultaractividades.html")
 
 @app.route('/comentariosactividad', methods=['GET', 'POST'])
-def comentariosactividad():    
+def comentariosactividad():
+    session['gps']="Ver mensajes"    
     return render_template("admin/comentariosactividad.html")
 
 @app.route('/gracias', methods=['GET', 'POST'])
@@ -90,16 +92,33 @@ def gracias():
 #franklin
 @app.route('/home', methods=['GET', 'POST'])
 def home():
+   
     session['gps']="Inicio" #breadcrumb
-    session['link']="infodocente"#breadcrumb
+    if session['rol_logueado']==2:   #dependiendo el usuario se modifican aqui las direcciones url a donde deben ir,
+        session['perfil']="infodocente"
+        session['cursos']="cursosdocente" 
+        session['buscacursos']="busquedacursos" 
+        session['mensajes']="comentariosactividad"
+        session['actividad']="creacionactividaddocente"
+        session['veractividad']="consultaractividades"
+        session['notas']="notasdocente"
+        session['calificacionespublicadas']="calificacionespublicadas"
+    elif session['rol_logueado']==3:
+        session['perfil']="infoestudiante"
+        # session['cursos']="cursosdocente" 
+        # session['buscacursos']="busquedacursos" 
+        # session['mensajes']="comentariosactividad"
+        # session['actividad']="creacionactividaddocente"
+        # session['veractividad']="consultaractividades"
+        session['notas']="notasestudiante"
+    else:
+        pass # urls de admin - falta esto -
     return render_template("admin/home.html", titulo=session['nombre_rol'])
 
 
 @app.route('/infodocente', methods=['GET', 'POST'])
 def infodocente():
     #try:
-        #form = info_Docente(request.form)
-        
         error = None
         if request.method == 'POST': #and form.validate():  
             #print("ya presionaron guardar, ENTRANDO CON EL POST")
@@ -146,7 +165,7 @@ def infodocente():
             #recien entra al link infodocente.html....   
             print("entro con GET")
             session['gps']="Perfil" #breadcrumb
-            session['link']="infodocente"#breadcrumb
+            
             db = get_db() 
             consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
             session['datos_form'] = consulta_inicio
@@ -211,7 +230,7 @@ def infoestudiante():
         #recien entra al link infoestudiante.html....   
         print("entro con GET")
         session['gps']="Perfil" #breadcrumb
-        session['link']="infoestudiante"#breadcrumb
+        
         db = get_db() 
         consulta_inicio=db.execute("SELECT * FROM usuario WHERE id_usuario = ?", (session['user_logueado'],)).fetchone()
         session['datos_form'] = consulta_inicio
@@ -222,11 +241,21 @@ def infoestudiante():
 #Notas Estudiante
 @app.route('/notasestudiante', methods=['GET', 'POST'])
 def notasestudiante():
+    session['gps']="Calificaciones" #breadcrumb
     return render_template("admin/notasestudiante.html", titulo="Calificaciones de Estudiante")
+
+#calificaciones publicadas docente
+@app.route('/calificacionespublicadas', methods=['GET', 'POST'])
+def calificacionespublicadas():
+    
+    session['gps']="Calificaciones publicadas" #breadcrumb
+    return render_template("admin/calificacionespublicadas.html", titulo="Calificaciones Publicas")
 
 #Notas docente
 @app.route('/notasdocente', methods=['GET', 'POST'])
 def notasdocente():
+    session['gps']="Cursos" #breadcrumb
+    
     return render_template("admin/notasdocente.html", titulo="Calificaciones de Estudiante")
 
 #Gabriel
@@ -293,6 +322,7 @@ def ingresar():
 #Decorador buscador de cursos
 @app.route('/busquedacursos', methods=['GET', 'POST'])
 def busqueda_cursos():
+    session['gps']="Buscar cursos" #breadcrumb
     return render_template("admin/busquedacursos.html", titulo="Buscador de cursos")
 
 #Claudio
@@ -332,7 +362,9 @@ def creacionactividaddocente():
 
 @app.route('/detalleactividadestudiante', methods=['GET', 'POST'])
 def detalleactividadestudiante():
+    session['gps']="Actividades" #breadcrumb
     return render_template("admin/detalleactividadestudiante.html", titulo="Detalles de la actividad")
+
 
 #Lennin
 @app.route('/registrodeusurioEstudiante', methods=['GET', 'POST'])

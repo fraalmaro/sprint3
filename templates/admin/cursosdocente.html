@@ -1,0 +1,212 @@
+{% extends 'admin/baseadmin.html' %}
+<!-- aun no sé como se ve-->
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+</div>
+{% endblock %}
+
+
+{% block areatrabajo %}
+      <h3 class="text-center">CURSOS</h3>    
+      <div class="container">
+            <div class="row">
+              <div class="col-1">
+                  <img src="{{ url_for('static', filename='img/file.png') }}" alt="file" class="img-fluid rounded" />
+              </div>
+              <div class="col-11 text-xl-start">
+                <h4>Calificar Cursos</h4>
+              </div>
+            </div>
+      </div>
+      <div class="container">
+        <div class="row">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Calificaciones</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Asignatura 1</li>
+                </ol>
+            </nav>
+        </div>
+      </div>
+       <!--  listas para asignatura-->
+       <div class="col">
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              seleccione asignatura
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Asignatura 1</a></li>
+              <li><a class="dropdown-item" href="#">Asignatura 2</a></li>
+              <li><a class="dropdown-item" href="#">Asignatura 3</a></li>
+            </ul>
+        </div>
+      </div>
+      <br />
+      <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingAsigOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAsijOne" aria-expanded="true" aria-controls="collapseAsijOne">
+              Curso 20225536
+            </button>
+          </h2>
+          <div id="collapseAsijOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <!--  listas para corte-->
+                <div class="col">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                          seleccione corte
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="#">corte 1</a></li>
+                          <li><a class="dropdown-item" href="#">corte 2</a></li>
+                          <li><a class="dropdown-item" href="#">corte 3</a></li>
+                        </ul>
+                    </div>
+                </div>
+    
+                <div> <!-- tabla -->   
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Estudiante</th>
+                        <th scope="col">asistencia</th>
+                        <th scope="col">actividad 1</th>
+                        <th scope="col">actividad2</th>
+                        <th scope="col">quiz</th>
+                        <th scope="col">Parcial</th>
+                        <th scope="col">Final</th>
+                        <th scope="col">Editar</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">1</th>
+                        <th scope="col">Giacomo Guilliz</th>
+                        <th scope="col">40/40</th>
+                        <th scope="col">5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">3.5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">0.0</th>
+                        <th scope="col"><div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                        </div></th>
+                      </tr>
+                      <tr>
+                        <th scope="row">1</th>
+                        <th scope="col">Giacomo Guilliz</th>
+                        <th scope="col">40/40</th>
+                        <th scope="col">5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">3.5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">0.0</th>
+                        <th scope="col"><div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        </div></th>
+                      </tr>
+                      <tr>
+                        <th scope="row">1</th>
+                        <th scope="col">Giacomo Guilliz</th>
+                        <th scope="col">40/40</th>
+                        <th scope="col">5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">3.5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">0.0</th>
+                        <th scope="col"><div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        </div></th>
+                      </tr>
+                      <tr>
+                        <th scope="row">1</th>
+                        <th scope="col">Giacomo Guilliz</th>
+                        <th scope="col">40/40</th>
+                        <th scope="col">5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">3.5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">0.0</th>
+                        <th scope="col"><div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        </div></th>
+                      </tr>
+                      <tr>
+                        <th scope="row">1</th>
+                        <th scope="col">Giacomo Guilliz</th>
+                        <th scope="col">40/40</th>
+                        <th scope="col">5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">3.5</th>
+                        <th scope="col">4.5</th>
+                        <th scope="col">0.0</th>
+                        <th scope="col"><div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        </div></th></tr>
+                        <tr>
+                            <th><button type="button" class="btn btn-primary btn-sm">actualizar</button></th>
+                            <th><button type="button" class="btn btn-secondary btn-sm">publicar</button></th>
+                            <th><button type="button" class="btn btn-secondary btn-sm">exportar</button></th>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div><!-- cierre de tabla -->
+              </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingAsigTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAsigTwo" aria-expanded="false" aria-controls="collapseAsigTwo">
+              Curso 20225537
+            </button>
+          </h2>
+          <div id="collapseAsigTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <!--  listas para corte-->
+                <div class="col">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                          seleccione corte
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="#">corte 1</a></li>
+                          <li><a class="dropdown-item" href="#">corte 2</a></li>
+                          <li><a class="dropdown-item" href="#">corte 3</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingAsigThree">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAsigThree" aria-expanded="false" aria-controls="collapseAsigThree">
+              Curso 20225538
+            </button>
+          </h2>
+          <div id="collapseAsigThree" class="accordion-collapse collapse" aria-labelledby="headingAsigThree" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <!--  listas para corte-->
+                <div class="col">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                          seleccione corte
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="#">corte 1</a></li>
+                          <li><a class="dropdown-item" href="#">corte 2</a></li>
+                          <li><a class="dropdown-item" href="#">corte 3</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+{% endblock %}
+
