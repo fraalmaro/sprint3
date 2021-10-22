@@ -525,17 +525,19 @@ def dashboard():
 
 #registro de contraseñas-------------------------------21-10-21
 @app.route('/registrocontrasenas', methods=['GET', 'POST'])
-def registrocontraseñas():
+def registrocontrasenas():
     #try:
         if request.method == 'POST':   
             
             password = request.form['password']
             password2 = request.form['password2']
+            flash(password)
+            flash(password2)
             
             db = get_db()
              #cambiar a id de usuario logeado
-            id =  db.execute('SELECT id_usuario FROM usuario WHERE user_usuario = ?',(session['user_logueado'],)).fetchone() 
-
+            id =  session['user_logueado'] 
+            flash(id)
             error = None
             
             
@@ -565,13 +567,13 @@ def registrocontraseñas():
 
             if error is not None:
                 # Ocurrió un error
-                return render_template("registrocontraseñas.html")
+                return render_template("registrocontrasenas.html")
             else:
                 # Seguro:
                 password_cifrado = generate_password_hash(password)
                 db.execute(
                     
-                    "UPDATE usuario SET password_usuario = '{}' WHERE id_usuario = '{}'".format(password_cifrado,id)
+                    "UPDATE usuario SET password_usuario = ? WHERE id_usuario = ?",(password_cifrado,id)
                 )
                 db.commit()
                 #2. Enviar un correo.
