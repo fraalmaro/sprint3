@@ -585,4 +585,4 @@ def registrocontraseñas():
                 #3. redirect para ir a otra URL
                 return redirect( url_for( 'ingresar' ) )
 
-        return render_template("registrocontraseñas.html")
+        return render_template("admin/registrocontrasenas.html")
