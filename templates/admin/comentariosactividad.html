@@ -3,7 +3,7 @@
 {% block infouser %}
 <div class="text-center">
       <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
-      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+      <!-- <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> -->
 </div>
 {% endblock %}
 
@@ -25,15 +25,10 @@
       <hr class="featurette-divider">
       <div class="container">
             <div class="row align-items-start">
-              <div class="col-7 border">
+              <div class="col border">
                   {{session['actividad'][1]}}
               </div>
-              <div class="col"></div>
-              <div class="col-4 border">
-                 <h5 class="text-center"><strong>Valoración</strong></h5>
-                 <p>{{session['actividad'][6]}}</p>
-                 <!--<p class="text-end"><em>Fecha de entrega</em></p>-->
-              </div>
+              
             </div>
       </div>
       <hr class="featurette-divider">

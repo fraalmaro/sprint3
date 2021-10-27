@@ -1,0 +1,34 @@
+{% extends 'admin/baseadmin.html' %}
+
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+     <!-- <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> -->
+</div>
+{% endblock %}
+
+{% block areatrabajo %}
+      <h3 class="text-center">Comentario de Actividad - {{ session['actividad'] }}</h3>
+     
+
+
+      <hr class="featurette-divider">
+      <h4>Tu Comentario</h4>
+      <div class="container">
+        <form action="{{ url_for('actualizarcomentario') }}" method="post" name="formRegistro" onsubmit="validar_formulario();" >
+          {{form.actividad(value=session['id'])}}
+          <div class="mb-3">
+             {{ form.mensaje(class="form-control", placeholder=session['mesaje'][0])  }}
+            <br />
+            <div class="col-auto">
+              {{ form.enviar(class="btn btn-primary mb-3")  }}
+            </div>
+          </div>
+        </form>  
+        
+        
+</div>
+   <br />   
+ 
+{% endblock %}
+

@@ -3,7 +3,7 @@
 {% block infouser %}
 <div class="text-center">
       <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
-      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+     <!-- <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> -->
 </div>
 {% endblock %}
 
@@ -16,25 +16,37 @@
       <h4>Tus Comentarios</h4>
       <div class="container">
     
-      
         <table class="table">
           <thead>
             <tr>
               <th scope="col">Comentario</th>
-              <th scope="col">Eliminar</th>
+              {%if session['opcion'] == 'Editar'%}
+                <th scope="col">Editar</th>
+              {%endif%}
+              {%if session['opcion'] == 'Eliminar'%}
+                <th scope="col">Eliminar</th>
+              {%endif%}
             </tr>
           </thead>
           <tbody>
             {%for id, mensaje, nombre, apellido in session['mensajesfull']%}
             <tr>
               <td>{{mensaje}}</td>
-              <td>@mdo</td>
+              <td>
+                {%if session['opcion'] == 'Editar'%}
+                  <a href="/editarcomentario/{{ session['actividad'] }}/{{id}}">Editar</a>
+                {%endif%}
+                {%if session['opcion'] == 'Eliminar'%}
+                  <a href="/eliminarcomentario/{{ session['actividad'] }}/{{id}}">Eliminar</a>
+                {%endif%}
+              </td>
             </tr>
             {%endfor%}
           </tbody>
         </table>
+        
 </div>
-      
-      
+   <br />   
+ 
 {% endblock %}
 

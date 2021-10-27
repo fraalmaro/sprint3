@@ -1,0 +1,75 @@
+{% extends 'admin/baseadmin.html' %}
+
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+      <!-- <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> -->
+</div>
+{% endblock %}
+
+
+
+{% block areatrabajo %}
+      <h3 class="text-center">Panel de {{session['nombre_rol']}}</h3>
+      <h4>Crear Usuario</h4>  
+      <form method="post" action="{{ url_for('guardarusuario') }}">
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Nombres</label>
+              <input type="text" class="form-control" name="nombre" required>
+            </div>
+            <div class="form-group">
+                  <label for="exampleFormControlInput1">Apellidos</label>
+                  <input type="text" class="form-control" name="apellido">
+                </div>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Cedula</label>
+              <input type="text" class="form-control" name="cedula" required>
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Correo</label>
+              <input type="email" class="form-control" name="correo" required>
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Pregrado</label>
+              <input type="text" class="form-control" name="pregrado">
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Postgrado</label>
+              <input type="text" class="form-control" name="postgrado">
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Fecha de Nacimiento</label>
+              <input type="date" class="form-control" name="fecha" placeholder="AAAA-MM-DD">
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Telefono</label>
+              <input type="text" class="form-control" name="tel">
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Facultad</label>
+              <input type="text" class="form-control" name="facul">
+            </div>
+            <div class="form-group">
+                  <label for="exampleFormControlInput1">Programa</label>
+                  <select class="form-control" name="programa" required>
+                        <option>Seleccione un Programa</option>
+                        {%for id, name in session['programas']%}
+                        <option value="{{id}}">{{name}}</option>
+                        {%endfor%}
+                  </select>
+            </div>
+            
+            <div class="form-group">
+                  <label for="exampleFormControlInput1">Tipo de Usuario</label>
+                  <select class="form-control" name="rol" required>
+                        <option>Seleccione un tipo</option>
+                        {%for id, name, desc in session['rol']%}
+                        <option value="{{id}}">{{name}}</option>
+                        {%endfor%}
+                  </select>
+            </div>
+            <br />   
+            <button type="submit" class="btn btn-primary mb-2">Guardar</button>
+          </form>
+  <br />         
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'admin/baseadmin.html' %}
+
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+</div>
+{% endblock %}
+
+
+
+{% block areatrabajo %}
+      <h3 class="text-center">Panel de {{session['nombre_rol']}}</h3>
+      <h4>Edición de Actividades</h4>    
+    {% if session['actividades']%}
+      <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Descripción Actividad</th>
+                <th scope="col">Tipo de Actividad</th>
+                <th scope="col">Fecha de entrega</th>
+                <th scope="col">Asignatura</th>
+                
+                <th scope="col">Calificación</th>
+                <th scope="col">Curso</th>
+                {%if session['rol_logueado'] != 3 %}
+                <th scope="col">Horario</th>
+                {% endif %}
+                <!-- <th scope="col">Ver Actividad</th>   desc,tipo ac, fecha , nombre asig, curso, calif  -->
+                {%if session['rol_logueado'] != 3 %}
+                <th scope="col">Editar Actividad</th>
+                <th scope="col">Elimiar Actividad</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+            {%if session['rol_logueado'] == 1 %}
+              {% for id, id_curso, id_act1, id_usuario, calificacion, id_actividad, descripcion, id_tipo_actividad, fecha, adj, id_asignatura, id_tipoact2, tipo_actividad, id_asign2, asignatura, codigo, horario, id_curso,  nombre_curso, codigo_curso, id_prog in session['actividades'] %}
+              <tr>
+                <th scope="row">{{id_actividad}}</th>
+                <td>{{descripcion}}</td>
+                <td>{{tipo_actividad}}</td>
+                <td>{{fecha}}</td>
+                <td>{{asignatura}}</td>
+                <td>{{calificacion}}</td>
+                <td>{{nombre_curso}}</td>
+                <td>{{horario}}</td>
+                
+                <!-- <td><a href="comentariosactividad/{{id}}">Ver</a></td> -->
+                <td><a href="editaractividad/{{id_actividad}}">Editar</a></td>
+                <td><a href="eliminarActividades/{{id_actividad}}/{{id}}">Eliminar</a></td>
+              </tr>
+              {%endfor%} 
+            {%endif%}             
+            {%if session['rol_logueado'] == 2 %}
+                  {% for id, id_curso, id_act1, id_usuario, calificacion, id_actividad, descripcion, id_tipo_actividad, fecha, adj, id_asignatura, id_tipoact2, tipo_actividad, id_asign2, asignatura, codigo, horario, id_curso,  nombre_curso, codigo_curso, id_prog in session['actividades'] %}
+                    <tr> 
+                      <th scope="row">{{id_act1}}</th>
+                      <td>{{descripcion}}</td>
+                      <td>{{tipo_actividad}}</td>
+                      <td>{{fecha}}</td>
+                      <td>{{asignatura}}</td>
+                      
+                      <td>{{calificacion}}</td>
+                      <td>{{nombre_curso}}</td>
+                      <td>{{horario}}</td>
+ 
+                      <!-- <td><a href="comentariosactividad/{{id}}">Ver Mensajes</a></td> -->
+                      <td><a href="editaractividad/{{id_actividad}}">Editar</a></td>
+                      <td><a href="eliminarActividades/{{id_actividad}}/{{id}}">Eliminar</a></td>
+                    </tr>
+                  {%endfor%}
+            {%endif%}
+            
+            <!-- estudiantes-->
+            
+            {%if session['rol_logueado'] == 3 %}
+              {%for id_activid, descripcion, id_tipoasig, fecha, adj, id_asign, id_tipo_act1, nombre_tipoAct, id_asig2, asignat, codigAsg, horario, id, id_curso, id_acti2, id_usuario,  califi, idcurso, nombreCurso, codigoCurso, id_programa in session['actividades']%}
+                <tr>
+                  <th scope="row">{{id_activid}}</th>
+                  <td>{{descripcion}}</td> 
+                  <td>{{nombre_tipoAct}}</td>
+                  <td>{{fecha}}</td>
+                  <td>{{asignat}}</td>
+                  <td>{{califi}}</td>
+                  <td>{{nombreCurso}}</td>
+                  
+                  <!-- <td><a href="comentariosactividad/{{id}}">Ver Mensajes</a></td> -->
+                  
+                 
+                </tr>
+                {%endfor%}
+              {%endif%}
+
+            </tbody>
+      </table>
+      <br>
+     
+      {%endif%}
+{% endblock %}

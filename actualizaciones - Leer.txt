@@ -28,3 +28,99 @@ total actualizacion:
 20-10-2021
 
 -indoestudiantes funcionando 100% con su consulta de update
+
+--- Yefferson ---
+Modulo de comentarios sobre las actividades
+
+20-10-2021 yefferson
+- se actualizaron y crearon las vistas comentariosactividad , guardarcomentario y consultaractividades
+- se creo la vista listarcomentariosEliminar
+- se actualizo comentariosactividad
+- se creo el html listarcomentariosEliminar
+- se actualizo admin/actividades/consultaractividades
+- se actualizo Crear_Comentario en forms.py
+- se cambio el footer de baseadmin
+- se actualizo el meno de baseadmin en el item mensajes
+
+--Cambios sobre la DB--
+- se creo la tabla curso_alumnos
+- se cambio a autoincremental el id de la tabla rel_mensajes_actividades_usuario
+- se agrego un campo "eliminado" a la tabla rel_mensajes_actividades_usuario si esta en 0 el mensaje se muestra si esta en 1 el mensaje no se muestra (es como si lo eliminara pero no lo borro de la DB)
+
+--Modulo Funcionando--
+* Listar las actividades y los comentarios asociados (admin - docente - alumno)
+* Crear nuevos comentarios a la actividad (admin - docente - alumno)
+
+21-10-2021
+- se crean los decoradores listarcomentariosEliminar - eliminarcomentario -editarcomentario - listarcomentariosEditar - actualizarcomentario
+- se agreo el / inicial a la miga de pan session['link']
+- template usadas admin/comentariosactividad.html - admin/actividades/consultaractividades.html - admin/listarcomentarios.html - dmin/Editarcomentarios.html
+
+23-10-2021 trabajo sobre el modulo de calificaciones
+--Cambios sobre la DB--
+*Se quito la opcion de unico a los campos id_programa y nombre del curso de la tabla curso
+*Se quito la opcion de unico a los campos id_tipo_actvidad de la tabla actividad
+* en rel_curso_actividad_usuario se creo el campo calificaciones
+* se quito calificaciones de la tabla actividad
+
+--template--
+* se creo sindatos para mostrar cuando no existen datos en la DB
+* al menu de baseadmin se le agreo / inicial a todos los href que no se construyen con jinja
+* en el menu de baseadmin el root solo puede listar las calificaciones
+* Se crearon los decoradores calificacionespublicadas - calificacionespublicadasPrograma - calificacionespublicadascurso - calificacionespublicadascursoactividad - calificacionalumno - calificacionalumnocurso 
+* Se crearon los html admin/calificacionalumno.html - admin/calificacionespublicadas.html - 
+
+24-10-2021
+
+--template--
+*Se crearon los decoradores calificaciondocente - handle_data - calificaciondocentecursoactividad- calificaciondocentecurso
+* Se creron los html admin/calificaciondocente.html - admin/guardarcalificacion.html
+* Se actualizo el modulo comentarios debido al cambio del registro calificaciones 
+
+26-10-2021
+* Se creo el template listarusuarios -crearusuario - editarusuario
+* se creo el decorador listarusuarios - crearusuario - editarusuario
+* se agrego a la consulta del decorador ingresar el campo eliminado 0 activo - 1 desactivado
+
+<<<<<<< HEAD
+--- End Yefferson ---
+
+--Franklin---
+ 23,24,25-10-2021
+- creacion modulo modificaractividades en la carpeta admin/actividades/modificaractividades.html
+- elimine el boton administrar y monitorear actividades en base admin : lineas 174,175,176
+-creacion de  actividades/modificaractividades.html
+-creacion de  actualizaractividad.html  <-- me quedo fuera de la carpeta actividades
+- modificaciones en baseadmin
+- creacion de decorador /veromodificaractividades
+- creacion de decorador /editaractividad
+- creacion de decorador /actualizaractividad
+- creacion de decorador / eliminar_Actividades
+- correccion breadcrum mensajes linea 87
+- modificacion en baseadmin linea 172 url 
+- modificacion del decorador creacionacividaddocente
+- ingresé unos datos en la bd en rel_curso_actividad_usuario, en curso_alumnos, y en actividad
+- modulo Ver o modificar actividad, crear actividad funcionando.
+- los estudiantes pueden solo ver las actividades relacionados a un curso (unico) que tenen matriculado.
+-los docentes pueden ver, crear, editar y eliminar actividades relacionadas a su usuario, es decir, que pueden ser actividades de varios cursos, o varias asignaturas
+(solo un detalle en el campo de curso, que debido a la complejidad de las relaciones, para modificar el curso al que pertenece una actividad ya creada, no funciona, puesto que tengo que actualizarlo en la tabla rel_curso_actividad_usuario, y al momento de cambiarlo, me modifica valores de otros registros. intenté otras condiciones en la consulta de update cursos, pero no consegui el objetivo. Se puede pensar que para cambiar una actividad de curso se debe eliminar y crear de nuevo. el resto funciona perfecto)
+- los admin pueden  ver, editar, crear, y eliminar todas las actividades de cualquier curso y cualquier asignatura.
+      
+--- End Franklin ---
+---Yefferson------  
+26-10-2021
+* Se creo el template listarusuarios -crearusuario - editarusuario
+* se creo el decorador listarusuarios - crearusuario - editarusuario
+* se agrego a la consulta del decorador ingresar el campo eliminado 0 activo - 1 desactivado
+
+--Cambios sobre la DB--
+- se agrego un campo "eliminado" a la tabla usuario si esta en 0 el usuario se muestra si esta en 1 el usuario no se muestra (es como si lo eliminara pero no lo borro de la DB)
+
+--- End Yefferson ---
+=======
+--Cambios sobre la DB--
+- se agrego un campo "eliminado" a la tabla usuario si esta en 0 el usuario se muestra si esta en 1 el usuario no se muestra (es como si lo eliminara pero no lo borro de la DB)
+
+--- End Yefferson ---
+
+>>>>>>> 358c310db95993a46cb57522319d577cf344da7d

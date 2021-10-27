@@ -3,13 +3,13 @@
 {% block infouser %}
 <div class="text-center">
       <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
-      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+      <!-- <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> -->
 </div>
 {% endblock %}
 
 
 {% block areatrabajo %}
-      <h3 class="text-center">Crear Actividades</h3>
+      <h3 class="text-center">Crear Nueva Actividad</h3>
       
       <div class="container">
             <div class="row">
@@ -21,40 +21,50 @@
       <hr class="featurette-divider">
       <div class="container-fluid">
         <div class="row featurette">
-          <h3 class="text-center">Formulario de Contacto</h3>
-          <form action="{{ url_for('creacionactividaddocente') }}" method="post" name="crearActividad" onsubmit="validar_formulario();" >
-              
-            <div class="mb-3">
-                {{ form.nombreActividad.label(class_="form-label")  }} 
-                {{ form.nombreActividad(class="form-control")  }}  
+       
+                
+
+          <form action="{{ url_for('creacionactividaddocente') }}" method="post" name="creacionactividaddocente"  >
+           
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">Descripcion</span>
+              <input type="text" class="form-control"  name="descripcion" placeholder="agrege una descripcion" aria-label="Username" aria-describedby="basic-addon1">
             </div>
-  
-            <div class="mb-3">                  
-                {{ form.descripcion.label(class_="form-label")   }} 
-                {{ form.descripcion(class="form-control")   }}  
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">Tipo de Actividad</span>
+              <select class="form-select" aria-label="Default select example" name="tipo_activ">
+                <option selected >seleccione una opcion</option>
+                {%for id, tarea in tipo_tarea%}
+                <option value="{{id}}">{{tarea}}</option>
+                {%endfor%}
+              </select>
             </div>
-  
-            <div class="mb-3">                  
-              {{ form.tipoActividad.label(class_="form-label")   }} 
-              {{ form.tipoActividad(class="form-control")   }}  
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">Asignatura</span>
+              <select class="form-select" aria-label="Default select example" name="asig">
+                <option selected>seleccione una opcion</option>
+                {%for id, asignatura in lista_asignaturas%}
+                <option value="{{id}}">{{asignatura}}</option>
+                {%endfor%}
+              </select>
             </div>
-            <div class="mb-3">                  
-            {{ form.asignatura.label(class_="form-label")   }} 
-            {{ form.asignatura(class="form-control")   }}  
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">Curso</span>
+              <select class="form-select" aria-label="Default select example" placeholder="seleccione una opcion" name="curse">
+                <option selected>seleccione una opcion</option>
+                {%for id_curso, nombreCurso,codigo,idprog in cursoguardado%}
+                <option value="{{id_curso}}">{{nombreCurso}}</option>
+                {%endfor%}
+              </select>
             </div>
-            <div class="mb-3">                  
-              {{ form.curso.label(class_="form-label")   }} 
-              {{ form.curso(class="form-control")   }}  
-              </div>
-              <div class="mb-3">                 
-                {{ form.fechaEntrega.label(class_="form-label")   }} 
-                {{ form.fechaEntrega(class="form-control")   }}  
-                </div>
-            <br />        
-            <div class="mb-3">
-                {{ form.enviar(class="btn btn-primary")  }}                        
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">fecha de entrega</span>
+              <input type="text" class="form-control"   name="fecha" placeholder="DD/MM/AA" aria-label="Username" aria-describedby="basic-addon1">
             </div>
-        </form>
+            <div class="row"><div class="d-grid gap-2 col-6 mx-auto"> <button name="boton" value="crear" type="submit" class="btn btn-success">guardar</button></div></div>
+          </form>
+            
+        
         </div>
       </div>
     

@@ -1,0 +1,74 @@
+{% extends 'admin/baseadmin.html' %}
+
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+</div>
+{% endblock %}
+
+
+{% block areatrabajo %}
+      <h3 class="text-center">Editar Actividades</h3>
+      
+      <div class="container">
+            <div class="row">
+              <div class="col-1">
+                  <img src="{{ url_for('static', filename='img/file.png') }}" alt="file" class="img-fluid rounded" />
+              </div>
+            </div>
+      </div>
+      <hr class="featurette-divider">
+      <div class="container-fluid">
+        <div class="row featurette">
+       
+                
+          <form action="{{ url_for('actualizaractividad') }}" method="post" name="updateActividad"  >
+           
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon1">Descripcion</span>
+                  <input type="text" class="form-control"  value="{{session['editActividad'][1]}}" name="descripcion" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon1">Tipo de Actividad</span>
+                  <select class="form-select" aria-label="Default select example" name="tipo_activ">
+                    <option selected value="{{session['editActividad'][8]}}">{{session['editActividad'][7]}}</option>
+                    {%for id, tarea in tipo_tarea%}
+                    <option value="{{id}}">{{tarea}}</option>
+                    {%endfor%}
+                  </select>
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon1">Asignatura</span>
+                  <select class="form-select" aria-label="Default select example" name="asig">
+                    <option selected value="{{session['editActividad'][5]}}">{{session['editActividad'][9]}}</option>
+                    {%for id, asignatura in lista_asignaturas%}
+                    <option value="{{id}}">{{asignatura}}</option>
+                    {%endfor%}
+                  </select>
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon1">Curso</span>
+                  <select class="form-select" aria-label="Default select example" name="curse">
+                    {%for id_curso, nombreCurso,codigo,idprog in cursoguardado%}
+                    <option selected value="{{id_curso}}">{{nombreCurso}}</option>
+                    {%endfor%}
+                    {%for id_curso, nombreCurso,codigo,idprog in cursos%}
+                    <option value="{{id_curso}}">{{nombreCurso}}</option>
+                    {%endfor%}
+                  </select>
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon1">fecha de entrega</span>
+                  <input type="text" class="form-control"  value="{{session['editActividad'][3]}}" name="fecha" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+                <div class="row"><div class="d-grid gap-2 col-6 mx-auto"> <button name="boton" value="update" type="submit" class="btn btn-success">guardar</button></div></div>
+              </form>
+              
+         
+        
+        </div>
+      </div>
+    
+{% endblock %}
+

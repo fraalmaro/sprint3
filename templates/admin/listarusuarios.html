@@ -1,0 +1,53 @@
+{% extends 'admin/baseadmin.html' %}
+
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+      <!-- <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> -->
+</div>
+{% endblock %}
+
+
+
+{% block areatrabajo %}
+      <h3 class="text-center">Panel de {{session['nombre_rol']}}</h3>
+      <h4>Listar Usuario</h4>   
+      {% if session['usuarios']%}
+      <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellidos</th>
+                <th scope="col">Correo</th>
+                <th scope="col">Falcultad</th>
+                <th scope="col">Rol</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Editar</th>
+                <th scope="col">Desactivar</th>
+              </tr>
+            </thead>
+            <tbody>
+                {%for estado, id, nom, apell, correo, facultad, rol in session['usuarios']%}
+                <tr>
+                  <td>{{nom}}</td>
+                  <td>{{apell}}</td>
+                  <td>{{correo}}</td>
+                  <td>{{facultad}}</td>
+                  <td>{{rol}}</td>
+                  {% if estado == 1 %}
+                    <td><div class="alert alert-danger">Desactivado</div></td>
+                  {%else %}
+                    <td><div class="alert alert-primary">Activo</div></td>
+                  {%endif%}
+                  <td><a href="editarusuario/{{id}}">Editar</a></td>
+                  {% if estado == 1 %}
+                    <td><a href="estadousuario/{{id}}/0">Activar</a></td>
+                  {%else %}
+                  <td><a href="estadousuario/{{id}}/1">Desactivar</a></td>
+                  {%endif%}
+                </tr>
+                {%endfor%} 
+              </tbody>
+      </table>
+      {%endif%}
+{% endblock %}

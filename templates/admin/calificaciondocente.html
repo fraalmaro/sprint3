@@ -1,0 +1,93 @@
+{% extends 'admin/baseadmin.html' %}
+<!-- aun no sé como se ve-->
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+     <!-- <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> -->
+</div>
+{% endblock %}
+
+{% block areatrabajo %}
+<h3 class="text-center">Actividades a calificar</h3>
+<div class="container">
+  <div class="row">
+    <div class="col-1">
+      <img src="{{ url_for('static', filename='img/file.png') }}" alt="file" class="img-fluid rounded" />
+    </div>
+    <div class="col-11 text-xl-start">
+      <h4>Calificaciones</h4>
+    </div>
+  </div>
+</div>
+<br />
+<!--  listas para Cursos-->
+{%if session['cursodocente']%}
+<div class="col">
+ <div class="btn-group">
+     <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+       {%if session['namecurso']%}
+         {{session['namecurso'][0]}}
+       {%else%}
+         seleccione el Curso
+       {%endif%}
+     </button>
+     <ul class="dropdown-menu">
+       {%for id, name in session['cursodocente']%}
+       <li><a class="dropdown-item" href="/calificaciondocente/{{id}}" id="curso">{{name}}</a></li>
+       {%endfor%}
+     </ul>
+ </div>
+</div>
+<br />
+{%endif%}
+{%if session['actividades']%}
+<div class="col">
+ <div class="btn-group">
+     <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+       {%if session['nameact']%}
+         {{session['nameact'][0]}}
+       {%else%}
+         seleccione la actividad
+       {%endif%}
+     </button>
+     <ul class="dropdown-menu">
+       {%for id, name in session['actividades']%}
+       <li><a class="dropdown-item" href="/calificaciondocente/{{session['curso']}}/{{id}}" id="curso">{{name}}</a></li>
+       {%endfor%}
+     </ul>
+ </div>
+</div>
+<br />
+{%endif%}
+
+{%if session['actividadDB']%}
+  <strong>Actividad: </strong>{{session['nameact'][0]}}
+  <br />
+  <form action="{{ url_for('handle_data') }}" method="post">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Alumno</th>
+          <th scope="col">Calificación</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for id, desc, idUser, nomUser, apelliUser, nota in session['actividadDB'] %}
+          <tr> 
+            <td>{{nomUser}} {{apelliUser}}</td>
+            <td>
+              <input type="text" name="nota" value="{{nota}}" class="form-control" required />
+              <input type="hidden" name="alumno" value="{{idUser}}" />
+            </td>
+          </tr>
+        {%endfor%}
+      </tbody>
+    </table>
+    <div class="col-12">
+      <button class="btn btn-primary" type="submit">Guardar / Modificar</button>
+    </div>
+  </form>
+    {%endif%} 
+<br />
+{% endblock %}
+

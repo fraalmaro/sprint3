@@ -1,0 +1,62 @@
+{% extends 'admin/baseadmin.html' %}
+<!-- aun no sé como se ve-->
+{% block infouser %}
+<div class="text-center">
+      <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
+      <!-- <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> -->
+</div>
+{% endblock %}
+
+{% block areatrabajo %}
+<h3 class="text-center">Historial de Calificaciones</h3>
+<div class="container">
+  <div class="row">
+    <div class="col-1">
+      <img src="{{ url_for('static', filename='img/file.png') }}" alt="file" class="img-fluid rounded" />
+    </div>
+    <div class="col-11 text-xl-start">
+      <h4>Calificaciones</h4>
+    </div>
+  </div>
+</div>
+<br />
+<!--  listas para Cursos-->
+{%if session['cursoalumno']%}
+<div class="col">
+ <div class="btn-group">
+     <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+       {%if session['namecurso']%}
+         {{session['namecurso'][0]}}
+       {%else%}
+         seleccione el Curso
+       {%endif%}
+     </button>
+     <ul class="dropdown-menu">
+       {%for id, name in session['cursoalumno']%}
+       <li><a class="dropdown-item" href="/calificacionalumno/{{id}}" id="curso">{{name}}</a></li>
+       {%endfor%}
+     </ul>
+ </div>
+</div>
+{%endif%}
+{%if session['calificacion']%}
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Actividad</th>
+          <th scope="col">Calificación</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for desc, nota in session['calificacion'] %}
+          <tr> 
+            <td>{{desc}}</td>
+            <td>{{nota}}</td>
+          </tr>
+        {%endfor%}
+      </tbody>
+    </table>
+    {%endif%} 
+<br />
+{% endblock %}
+

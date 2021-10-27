@@ -3,7 +3,7 @@
 {% block infouser %}
 <div class="text-center">
       <img src="{{ url_for('static', filename='img/user.png') }}" alt="Logo ECIJG" class="img-fluid img-thumbnail rounded" />
-      <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> 
+      <!-- <p class="text-center"><strong><a class="nav-link" href="#">Editar</a></strong></p> -->
 </div>
 {% endblock %}
 
@@ -11,7 +11,7 @@
 
 {% block areatrabajo %}
       <h3 class="text-center">Panel de {{session['nombre_rol']}}</h3>
-      <h4>Consultar Actividades</h4>    
+      <h4>Consultar Actividades</h4>   
       {% if session['actividades']%}
       <table class="table">
             <thead>
@@ -21,59 +21,55 @@
                 <th scope="col">Tipo de Actividad</th>
                 <th scope="col">Fecha de entrega</th>
                 <th scope="col">Asignatura</th>
-                <th scope="col">Calificación</th>
                 <th scope="col">Ver Mensajes</th>
                 <th scope="col">Editar Mensajes</th>
                 <th scope="col">Elimiar Mensajes</th>
               </tr>
             </thead>
             <tbody>
-            {%if session['rol_logueado'] == 1 %}
-              {%for id, desc, id_tipo, fecha, adj, id_asig, calif, id_tipo_act, nombre_act, id_tabla_asig, nom_asig, cod_asig, hora_asig in session['actividades']%}
-              <tr>
-                <th scope="row">{{id}}</th>
-                <td>{{desc}}</td>
-                <td>{{nombre_act}}</td>
-                <td>{{fecha}}</td>
-                <td>{{nom_asig}}</td>
-                <td>{{calif}}</td>
-                <td><a href="comentariosactividad/{{id}}">Ver/crear</a></td>
-                <td><a href="listarcomentarios/{{id}}">Editar</a></td>
-                <td><a href="listarcomentariosEliminar/{{id}}">Eliminar</a></td>
-              </tr>
-              {%endfor%} 
-            {%endif%}
-            {%if session['rol_logueado'] == 2 %}
-              {%for idTabla_relcur, idRelCur_curso, idRelCur_idActi, idRelCur_idUser, id, desc, id_tipo, fecha, adj, id_asig, calif, id_tipo_act, nombre_act, id_tabla_asig, nom_asig, cod_asig, hora_asig  in session['actividades']%}
+              {%if session['rol_logueado'] == 1 %}
+                {%for id, desc, nombre_act, fecha, nom_asig in session['actividades']%}
                 <tr>
                   <th scope="row">{{id}}</th>
                   <td>{{desc}}</td>
                   <td>{{nombre_act}}</td>
                   <td>{{fecha}}</td>
                   <td>{{nom_asig}}</td>
-                  <td>{{calif}}</td>
-                  <td><a href="comentariosactividad/{{id}}">Ver Mensajes</a></td>
-                  <td><a href="listarcomentarios/{{id}}">Editar</a></td>
+                  <td><a href="comentariosactividad/{{id}}">Ver/crear</a></td>
+                  <td><a href="listarcomentariosEditar/{{id}}">Editar</a></td>
                   <td><a href="listarcomentariosEliminar/{{id}}">Eliminar</a></td>
                 </tr>
-                {%endfor%}
+                {%endfor%} 
               {%endif%}
-            {%if session['rol_logueado'] == 3 %}
-              {%for idCursoAlumno, idAlumno, idCurso, idTabla_relcur, idRelCur_curso, idRelCur_idActi, idRelCur_idUser, id, desc, id_tipo, fecha, adj, id_asig, calif, id_tipo_act, nombre_act, id_tabla_asig, nom_asig, cod_asig, hora_asig  in session['actividades']%}
-                <tr>
-                  <th scope="row">{{id}}</th>
-                  <td>{{desc}}</td>
-                  <td>{{nombre_act}}</td>
-                  <td>{{fecha}}</td>
-                  <td>{{nom_asig}}</td>
-                  <td>{{calif}}</td>
-                  <td><a href="comentariosactividad/{{id}}">Ver Mensajes</a></td>
-                  <td><a href="listarcomentarios/{{id}}">Editar</a></td>
-                  <td><a href="listarcomentariosEliminar/{{id}}">Eliminar</a></td>
-                </tr>
-                {%endfor%}
-              {%endif%}
-            </tbody>
+              {%if session['rol_logueado'] == 2 %}
+                {%for id, desc, nombre_act, fecha, nom_asig in session['actividades']%}
+                  <tr>
+                    <th scope="row">{{id}}</th>
+                    <td>{{desc}}</td>
+                    <td>{{nombre_act}}</td>
+                    <td>{{fecha}}</td>
+                    <td>{{nom_asig}}</td>
+                    <td><a href="comentariosactividad/{{id}}">Ver Mensajes</a></td>
+                    <td><a href="listarcomentariosEditar/{{id}}">Editar</a></td>
+                    <td><a href="listarcomentariosEliminar/{{id}}">Eliminar</a></td>
+                  </tr>
+                  {%endfor%}
+                {%endif%}
+              {%if session['rol_logueado'] == 3 %}
+                {%for id, desc, nombre_act, fecha, nom_asig in session['actividades']%}
+                  <tr>
+                    <th scope="row">{{id}}</th>
+                    <td>{{desc}}</td>
+                    <td>{{nombre_act}}</td>
+                    <td>{{fecha}}</td>
+                    <td>{{nom_asig}}</td>
+                    <td><a href="comentariosactividad/{{id}}">Ver Mensajes</a></td>
+                    <td><a href="listarcomentariosEditar/{{id}}">Editar</a></td>
+                    <td><a href="listarcomentariosEliminar/{{id}}">Eliminar</a></td>
+                  </tr>
+                  {%endfor%}
+                {%endif%}
+              </tbody>
       </table>
       {%endif%}
 {% endblock %}

@@ -1,6 +1,8 @@
 import sqlite3
 from flask import Flask, flash, redirect, render_template, request, sessions, url_for, g, session
-from werkzeug.utils import html #agregada por franklin
+from flask.wrappers import Request
+from werkzeug.utils import html
+from wtforms import form #agregada por franklin
 from utils import isCedulaValid, isUsernameValid, isEmailValid, isPasswordValid, isNameValid, isUsernameValidFacil, isPasswordValidFacil
 #import yagmail as yagmail
 from forms import Crear_Comentario, Formulario_Contacto, info_Docente, Formulario_Ingresar, info_Estudiante, crear_Actividad,registrar_Estudiante, registrar_Docente
@@ -72,28 +74,113 @@ def consultaractividades():
     session['user_logueado']#id
     session['rol_logueado']#rol 1 admin - 2 docente - 3 estudiante
     if session['rol_logueado'] == 1:
-        actividades =  db.execute('SELECT * FROM actividades INNER JOIN tipo_actividad ON actividades.id_tipo_actividad = tipo_actividad.id_tipo_actividad INNER JOIN asignaturas ON actividades.id_asignatura = asignaturas.id_asignatura').fetchall()
+        actividades =  db.execute('SELECT actividades.id_actividad, actividades.descripcion, tipo_actividad.nombre_tipo_actividad, actividades.fecha_entrega, asignaturas.asignatura  FROM actividades INNER JOIN tipo_actividad ON actividades.id_tipo_actividad = tipo_actividad.id_tipo_actividad INNER JOIN asignaturas ON actividades.id_asignatura = asignaturas.id_asignatura').fetchall()
     elif session['rol_logueado'] !=1 and session['rol_logueado'] !=2: #Alumnos
-        actividades =  db.execute('SELECT * FROM curso_alumnos INNER JOIN rel_curso_actividad_usuario ON rel_curso_actividad_usuario.id_curso = curso_alumnos.id_curso INNER JOIN actividades ON actividades.id_actividad = rel_curso_actividad_usuario.id_actividad INNER JOIN tipo_actividad ON tipo_actividad.id_tipo_actividad = actividades.id_tipo_actividad INNER JOIN asignaturas ON asignaturas.id_asignatura = actividades.id_asignatura WHERE curso_alumnos.id_usuario = ?',(session['user_logueado'],)).fetchall()
+        actividades =  db.execute('SELECT DISTINCT actividades.id_actividad, actividades.descripcion, tipo_actividad.nombre_tipo_actividad, actividades.fecha_entrega, asignaturas.asignatura FROM curso_alumnos INNER JOIN rel_curso_actividad_usuario ON rel_curso_actividad_usuario.id_curso = curso_alumnos.id_curso INNER JOIN actividades ON actividades.id_actividad = rel_curso_actividad_usuario.id_actividad INNER JOIN tipo_actividad ON tipo_actividad.id_tipo_actividad = actividades.id_tipo_actividad INNER JOIN asignaturas ON asignaturas.id_asignatura = actividades.id_asignatura WHERE curso_alumnos.id_usuario = ?',(session['user_logueado'],)).fetchall()
         print(actividades) 
     else:
-        actividades =  db.execute('SELECT * FROM rel_curso_actividad_usuario INNER JOIN actividades ON rel_curso_actividad_usuario.id_actividad = actividades.id_actividad INNER JOIN tipo_actividad ON tipo_actividad.id_tipo_actividad = actividades.id_tipo_actividad INNER JOIN asignaturas ON asignaturas.id_asignatura = actividades.id_asignatura WHERE rel_curso_actividad_usuario.id_usuario = ?',(session['user_logueado'],)).fetchall()
+        actividades =  db.execute('SELECT DISTINCT actividades.id_actividad, actividades.descripcion, tipo_actividad.nombre_tipo_actividad, actividades.fecha_entrega, asignaturas.asignatura FROM rel_curso_actividad_usuario INNER JOIN actividades ON rel_curso_actividad_usuario.id_actividad = actividades.id_actividad INNER JOIN tipo_actividad ON tipo_actividad.id_tipo_actividad = actividades.id_tipo_actividad INNER JOIN asignaturas ON asignaturas.id_asignatura = actividades.id_asignatura WHERE rel_curso_actividad_usuario.id_usuario = ?',(session['user_logueado'],)).fetchall()
 
     if actividades is None:
         error = "No se han creado actividades"
         flash(error)
         return render_template("admin/actividades/consultaractividades.html", titulo="Listado de Actividades")
     else:
-        session['gps'] = "Actividades"
+        session['gps'] = "Mensajes"
         #session['link'] = ""
         session['actividades'] = actividades
 
     return render_template("admin/actividades/consultaractividades.html")
 
 
+@app.route('/modificaractividades', methods=['GET', 'POST'])#lista las actividades 
+def veromodificarActividades(): #solo atividades crud
+     
+    db = get_db()
+    #se que usario esta logueado para poder hacer el filtrado de actividades si es root lista todas las actividades, si es docente solo muestra sus actividades y si es alumno solo los del curso inscrito
+    session['user_logueado']#id
+    session['rol_logueado']#rol 1 admin - 2 docente - 3 estudiante
+    if session['rol_logueado'] == 1:
+        actividades =  db.execute('SELECT * FROM rel_curso_actividad_usuario INNER JOIN actividades ON rel_curso_actividad_usuario.id_actividad = actividades.id_actividad INNER JOIN tipo_actividad ON tipo_actividad.id_tipo_actividad = actividades.id_tipo_actividad INNER JOIN asignaturas ON asignaturas.id_asignatura = actividades.id_asignatura INNER JOIN cursos ON cursos.id_cursos = rel_curso_actividad_usuario.id_curso ').fetchall()
+    elif session['rol_logueado'] !=1 and session['rol_logueado'] !=2: #Alumnos
+        curso_matr= db.execute('SELECT * FROM curso_alumnos where id_usuario=?',(session['user_logueado'],)).fetchone()
+        
+        actividades =  db.execute('SELECT * FROM actividades INNER JOIN tipo_actividad ON actividades.id_tipo_actividad = tipo_actividad.id_tipo_actividad INNER JOIN asignaturas ON actividades.id_asignatura = asignaturas.id_asignatura INNER JOIN rel_curso_actividad_usuario ON actividades.id_actividad = rel_curso_actividad_usuario.id_actividad INNER JOIN cursos ON cursos.id_cursos = rel_curso_actividad_usuario.id_curso WHERE  rel_curso_actividad_usuario.id_curso=?',(curso_matr[2],)).fetchall()
+        
+        
+    else: #docentes
+        actividades =  db.execute('SELECT * FROM rel_curso_actividad_usuario INNER JOIN actividades ON rel_curso_actividad_usuario.id_actividad = actividades.id_actividad INNER JOIN tipo_actividad ON tipo_actividad.id_tipo_actividad = actividades.id_tipo_actividad INNER JOIN asignaturas ON asignaturas.id_asignatura = actividades.id_asignatura INNER JOIN cursos ON cursos.id_cursos = rel_curso_actividad_usuario.id_curso  WHERE rel_curso_actividad_usuario.id_usuario = ?',(session['user_logueado'],)).fetchall()
+        
+    if actividades is None:
+        error = "No se han creado actividades"
+        flash(error)
+        return render_template("admin/actividades/modificaractividades.html", titulo="Listado de Actividades")
+    else:
+        session['gps'] = "Actividades"
+        session['actividades'] = actividades
+        
+    return render_template("admin/actividades/modificaractividades.html")
+
+@app.route('/editaractividad/<int:n1>', methods=['GET', 'POST'])
+def editaractividad(n1):  
+    session['gps'] = "Editar actividad"
+    session['link'] = "editaractividades" #voy por aqui, ahora edita la actividad
+    db = get_db()
+    id_actividad = n1
+    actividad =  db.execute('SELECT * FROM actividades INNER JOIN tipo_actividad ON actividades.id_tipo_actividad = tipo_actividad.id_tipo_actividad INNER JOIN asignaturas ON actividades.id_asignatura = asignaturas.id_asignatura INNER JOIN rel_curso_actividad_usuario ON rel_curso_actividad_usuario.id_curso  WHERE actividades.id_actividad=?',(n1,)).fetchone()
+    session['editActividad'] = actividad
+    cursoguardado= db.execute('SELECT *  FROM cursos WHERE id_cursos=?',(session['editActividad'][14],)).fetchall()
+    tipo_tarea=db.execute('SELECT * FROM tipo_actividad').fetchall()
+    lista_asignaturas= db.execute('SELECT id_asignatura, asignatura FROM asignaturas' ).fetchall()
+    usuario=session['editActividad'][15]
+    
+    flash(actividad[0])
+
+    cursos= db.execute('SELECT *  FROM cursos ').fetchall()
+    
+    return render_template("admin/actualizaractividad.html", lista_asignaturas=lista_asignaturas,tipo_tarea=tipo_tarea, cursoguardado=cursoguardado,cursos=cursos)
+
+
+
+@app.route('/actualizaractividad', methods=['GET', 'POST'])
+def actualizaractividad():
+    if request.form['boton']=="update":
+        descrip = request.form["descripcion"]
+        tipo_activ =  request.form['tipo_activ']
+        asig =request.form['asig']
+        curse =request.form['curse']
+        fecha =request.form['fecha']
+        usuario=session['editActividad'][15]
+      
+        db = get_db()
+        db.execute("UPDATE actividades SET descripcion = ?, id_tipo_actividad = ?, fecha_entrega = ?, id_asignatura = ? WHERE id_actividad = ?",(descrip,tipo_activ,fecha,asig,session['editActividad'][0]))
+        db.commit()
+        sql=db.execute('UPDATE rel_curso_actividad_usuario SET id_curso=? WHERE id=?',(curse,session['editActividad'][12]))
+        db.commit()
+        flash(session['editActividad'][12])
+        flash(usuario)
+        flash(curse)
+        
+        
+        db.close()
+        return redirect( ( "modificaractividades" ) )
+       
+
+@app.route('/eliminarActividades/<int:n1>/<int:n2>', methods=['GET', 'POST'])
+def eliminar_Actividades(n1,n2):
+    
+    session['gps'] = "eliminar actividad" 
+    db=get_db()
+    db.execute("DELETE  FROM actividades WHERE id_actividad = ?",(n1,)) 
+    db.commit()
+    db.execute("DELETE FROM rel_curso_actividad_usuario WHERE id=?",(n2,))
+    db.commit()
+    flash("Registro eliminado con éxito")
+    return redirect("/modificaractividades")
+   
 @app.route('/comentariosactividad/<int:n1>', methods=['GET', 'POST'])
 def comentariosactividad(n1):  
-    session['gps'] = "Actividades"
+    session['gps'] = "Mensajes"
     session['link'] = "consultaractividades"
     form = Crear_Comentario(  request.form  )  
     id_actividad = n1
@@ -119,10 +206,6 @@ def guardarcomentario():
         error = None
         if request.method == 'POST': 
             mensaje = request.form['mensaje']
-            
-            print("===", n1)
-            print("===", logueadouser)
-            print("===", mensaje)
             if error is not None:
                 # Ocurrió un error
                 return render_template("admin/comentariosactividad.html", form=form, n1=n1, titulo="Comentario Actividad")
@@ -146,22 +229,681 @@ def listarcomentariosEliminar():
     session['gps'] = "Lista de actividades"   
     return render_template("admin/listarcomentarios.html", titulo="Lista de actividades")
 
+
 @app.route('/listarcomentariosEliminar/<int:lista>', methods=['GET', 'POST'])
 def vercomentarios(lista):
     id_actividad = lista
-    
-    session['gps'] = "Lista de actividades" 
+    session['link'] = "consultaractividades"
+    session['gps'] = "Lista de Comentarios a eliminar" 
     db = get_db()
     mensajesfull =  db.execute('SELECT id, mensaje,nombre_usuario,Apellido_usuario FROM rel_mensajes_actividades_usuario INNER JOIN usuario ON usuario.id_usuario = rel_mensajes_actividades_usuario.id_usuario WHERE rel_mensajes_actividades_usuario.id_actividad = ? AND eliminado = 0 AND rel_mensajes_actividades_usuario.id_usuario = ?',(id_actividad,session['user_logueado'])).fetchall()
     actividad =  db.execute('SELECT * FROM actividades WHERE id_actividad = ?',(id_actividad,)).fetchone()
-    if mensajesfull is None:
+    if mensajesfull is None or len(mensajesfull)==0:
         error = "La actividad solicitada no tiene comentarios"
         flash(error)
         return redirect(url_for('consultaractividades'))
     else:
         session['mensajesfull'] = mensajesfull
         session['actividad'] = actividad[0]
+        session['opcion'] = 'Eliminar'
     return render_template("admin/listarcomentarios.html")
+    
+@app.route('/eliminarcomentario/<int:idActividad>/<int:idComentario>', methods=['GET', 'POST'])
+def eliminarcomentario(idActividad,idComentario):
+    error = None
+    idComentario = idComentario
+    idActividad = idActividad
+    if request.method == 'GET': 
+        if error is not None:
+            # Ocurrió un error
+            error = "Error"
+            flash(error)
+            return render_template("admin/comentariosactividad.html",titulo="Comentario Actividad")
+        else:
+            db = get_db()
+            db.execute('UPDATE rel_mensajes_actividades_usuario SET eliminado = 1 WHERE id = ?',(idComentario,))
+            db.commit()
+            error = "Comentario eliminado en la actividad"
+            flash(error)
+            return redirect(url_for('consultaractividades'))
+
+    return redirect(url_for('consultaractividades'))
+
+@app.route('/editarcomentario/<int:idActividad>/<int:idComentario>', methods=['GET', 'POST'])
+def editarcomentario(idActividad,idComentario):
+    form = Crear_Comentario(request.form)
+    error = None
+    idComentario = idComentario
+    idActividad = idActividad
+    if request.method == 'GET': 
+        if error is not None:
+            # Ocurrió un error
+            error = "Error"
+            flash(error)
+            return render_template("admin/comentariosactividad.html",titulo="Comentario Actividad")
+        else:
+            db = get_db()
+            consulta = db.execute('SELECT mensaje FROM rel_mensajes_actividades_usuario WHERE id = ? AND eliminado = 0',(idComentario,)).fetchone()
+            session['mesaje'] = consulta
+            session['id'] = idComentario
+            session['link'] = "consultaractividades"
+            session['gps'] = "Editar Comentario" 
+            
+            return render_template("admin/Editarcomentarios.html", form = form, titulo="Comentario Actividad")
+
+    return redirect(url_for('consultaractividades'))
+    
+
+@app.route('/listarcomentariosEditar/<int:lista>', methods=['GET', 'POST'])
+def listarcomentariosEditar(lista):
+    id_actividad = lista
+    session['link'] = "consultaractividades"
+    session['gps'] = "Lista de Comentarios a Editar" 
+    db = get_db()
+    mensajesfull =  db.execute('SELECT id, mensaje,nombre_usuario,Apellido_usuario FROM rel_mensajes_actividades_usuario INNER JOIN usuario ON usuario.id_usuario = rel_mensajes_actividades_usuario.id_usuario WHERE rel_mensajes_actividades_usuario.id_actividad = ? AND eliminado = 0 AND rel_mensajes_actividades_usuario.id_usuario = ?',(id_actividad,session['user_logueado'])).fetchall()
+    actividad =  db.execute('SELECT * FROM actividades WHERE id_actividad = ?',(id_actividad,)).fetchone()
+    if mensajesfull is None or len(mensajesfull)==0:
+        error = "La actividad solicitada no tiene comentarios"
+        flash(error)
+        return redirect(url_for('consultaractividades'))
+    else:
+        session['mensajesfull'] = mensajesfull
+        session['actividad'] = actividad[0]
+        session['opcion'] = 'Editar'
+    return render_template("admin/listarcomentarios.html")
+
+@app.route('/actualizarcomentario', methods=['GET', 'POST'])
+def actualizarcomentario():
+    try:
+        form = Crear_Comentario(request.form)
+        idcomentarioeditar = request.form['actividad'] 
+        error = None
+        if request.method == 'POST': 
+            mensajeeditado = request.form['mensaje'] 
+            if error is not None:
+                # Ocurrió un error
+                return render_template("admin/comentariosactividad.html", form=form, titulo="Comentario Actividad")
+            else:
+                form = Crear_Comentario()
+                db = get_db()
+                db.execute('UPDATE rel_mensajes_actividades_usuario SET mensaje = ? WHERE id = ?',(mensajeeditado,idcomentarioeditar))
+                db.commit()
+                flash("Mensaje editado con exito")
+                return render_template("admin/actividades/consultaractividades.html")
+
+        return render_template("admin/comentariosactividad.html", form=form, titulo="Comentario Actividad")
+    except:
+        flash("¡Ups! Ha ocurrido un error, intentelo de nuevo.")
+        return render_template("admin/comentariosactividad.html", titulo="Comentario Actividad")
+
+#MODULO CALIFICACIONES
+#calificaciones publicadas docente
+@app.route('/calificacionespublicadas', methods=['GET', 'POST'])
+def calificacionespublicadas():
+    session.pop('nameprog', None)
+    session.pop('actividad', None)
+    session.pop('cursofull', None)
+    session.pop('actividadSeleccionada', None)
+    session['gps']="Calificaciones publicadas" #breadcrumb
+    db = get_db()
+    programasfull =  db.execute('SELECT id_programa, nombre_programa FROM programas').fetchall()
+    if programasfull is None or len(programasfull)==0:
+        error = "No existen programas academicos en la Base de Datos"
+        flash(error)
+        return redirect(url_for('sindatos'))
+    else:
+        session['programasfull'] = programasfull
+    return render_template("admin/calificacionespublicadas.html", titulo="Ver Calificaciones")
+
+@app.route('/calificacionespublicadas/<int:programa>', methods=['GET', 'POST'])
+def calificacionespublicadasPrograma(programa):
+    if programa != 0:
+        db = get_db()
+        cursofull =  db.execute('SELECT id_cursos, nombre_curso FROM cursos WHERE id_programa = ?',(programa,)).fetchall()
+        if cursofull is None or len(cursofull)==0:
+            session.pop('namecurso', None)
+            session.pop('cursofull', None)
+            session.pop('actividad', None)
+            error = "No existen Cursos asociados al programa academico seleccionado"
+            flash(error)
+            return redirect(url_for('calificacionespublicadas'))
+        else:
+            nameprog =  db.execute('SELECT id_programa,nombre_programa FROM programas WHERE id_programa = ?',(programa,)).fetchone()
+            session.pop('namecurso', None)
+            session.pop('cursofull', None)
+            session.pop('actividad', None)
+            session.pop('actividadSeleccionada', None)
+            session['cursofull'] = cursofull
+            session['nameprog'] = nameprog[1]
+            session['id_programa'] = nameprog[0]
+    return render_template("admin/calificacionespublicadas.html", titulo="Ver Calificaciones")
+
+@app.route('/calificacionespublicadas/<int:programa>/<int:curso>', methods=['GET', 'POST'])
+def calificacionespublicadascurso(programa,curso):
+    
+    if programa != 0 and curso !=0: 
+        db = get_db()
+        actividad =  db.execute('SELECT DISTINCT actividades.id_actividad, actividades.descripcion FROM rel_curso_actividad_usuario INNER JOIN actividades ON actividades.id_actividad = rel_curso_actividad_usuario.id_actividad WHERE rel_curso_actividad_usuario.id_curso=?',(curso,)).fetchall()
+        
+        if actividad is None or len(actividad)==0:
+            session.pop('desc', None)
+            session.pop('namecurso', None)
+            session.pop('actividad', None)
+            session.pop('actividadSeleccionada', None)
+            error = "No existen Actividades asociadas al Curso seleccionado"
+            flash(error)
+            return render_template("admin/calificacionespublicadas.html", programa = programa, titulo="Ver Calificaciones")
+        else:
+            nameprog =  db.execute('SELECT nombre_programa FROM programas WHERE id_programa = ?',(programa,)).fetchone()
+            namecurso =  db.execute('SELECT nombre_curso FROM cursos WHERE id_cursos = ?',(curso,)).fetchone()
+            if namecurso is None or len(namecurso)==0:
+                session['namecurso'] = "seleccione el programa"
+
+            else:
+                session['namecurso'] = namecurso
+                session['desc'] = "seleccione la actividad"
+            
+            session['actividad'] = actividad
+            session['nameprog'] = nameprog[0]
+            session['id_curso'] = curso
+            
+    return render_template("admin/calificacionespublicadas.html", programa = programa, titulo="Ver Calificaciones")
+
+@app.route('/calificacionespublicadas/<int:programa>/<int:curso>/<int:actividad>', methods=['GET', 'POST'])
+def calificacionespublicadascursoactividad(programa,curso,actividad):
+    
+    if programa != 0 and curso !=0 and actividad != 0: 
+        db = get_db()
+        actividadSeleccionada =  db.execute('SELECT rel_curso_actividad_usuario.id_actividad, actividades.descripcion, rel_curso_actividad_usuario.calificacion, usuario.nombre_usuario, usuario.Apellido_usuario FROM rel_curso_actividad_usuario INNER JOIN actividades ON actividades.id_actividad = rel_curso_actividad_usuario.id_actividad INNER JOIN usuario ON usuario.id_usuario = rel_curso_actividad_usuario.id_usuario INNER JOIN rol ON usuario.id_rol = rol.id_rol WHERE rel_curso_actividad_usuario.id_actividad = ? AND rol.id_rol = 3',(actividad,)).fetchall()
+        
+        if actividadSeleccionada is None or len(actividadSeleccionada)==0:
+            session.pop('desc', None)
+            session.pop('namecurso', None)
+            session.pop('actividad', None)
+            session.pop('actividadSeleccionada', None)
+            error = "No existen Actividades asociadas al Curso seleccionado"
+            flash(error)
+            return render_template("admin/calificacionespublicadas.html", programa = programa, titulo="Ver Calificaciones")
+        else:
+            nameprog =  db.execute('SELECT nombre_programa FROM programas WHERE id_programa = ?',(programa,)).fetchone()
+            namecurso =  db.execute('SELECT nombre_curso FROM cursos WHERE id_cursos = ?',(curso,)).fetchone()
+            nameactividad =  db.execute('SELECT descripcion FROM actividades WHERE id_actividad = ?',(actividad,)).fetchone()
+            if namecurso is None or len(namecurso)==0:
+                session['namecurso'] = "seleccione el programa"
+                session['desc'] = "seleccione la actividad"
+                
+            else:
+                session['namecurso'] = namecurso
+
+            if nameactividad is None or len(nameactividad)==0:
+                session['desc'] = "seleccione la actividad"
+                
+            else:
+                session['desc'] = nameactividad[0]
+                
+            
+            session['actividadSeleccionada'] = actividadSeleccionada
+            session['nameprog'] = nameprog[0]
+            session['id_curso'] = curso
+            
+    return render_template("admin/calificacionespublicadas.html", programa = programa, titulo="Ver Calificaciones")
+
+#Calificaciones Alumno  solo Ver
+@app.route('/calificacionalumno', methods=['GET', 'POST'])
+def calificacionalumno():
+    session['gps']="Mis Calificaciones" #breadcrumb
+    db = get_db()
+    cursoalumno =  db.execute('SELECT DISTINCT cursos.id_cursos, cursos.nombre_curso FROM rel_curso_actividad_usuario INNER JOIN cursos ON cursos.id_cursos = rel_curso_actividad_usuario.id_curso WHERE rel_curso_actividad_usuario.id_usuario=?',(session['user_logueado'],)).fetchall()
+    if cursoalumno is None or len(cursoalumno)==0:
+        session.pop('cursoalumno', None)
+        session.pop('calificacion', None)
+        error = "El alumno no tiene matriculado ningun curso"
+        flash(error)
+        return redirect(url_for('sindatos'))
+    else:
+        session.pop('cursoalumno', None)
+        session.pop('calificacion', None)
+        session['cursoalumno'] = cursoalumno
+    return render_template("admin/calificacionalumno.html", titulo="Ver Tus Calificaciones")
+
+@app.route('/calificacionalumno/<int:curso>', methods=['GET', 'POST'])
+def calificacionalumnocurso(curso):
+    if curso != 0:
+        db = get_db()
+        calificacion =  db.execute('SELECT DISTINCT actividades.descripcion, rel_curso_actividad_usuario.calificacion FROM rel_curso_actividad_usuario INNER JOIN actividades ON actividades.id_actividad = rel_curso_actividad_usuario.id_actividad WHERE rel_curso_actividad_usuario.id_usuario = ? AND rel_curso_actividad_usuario.id_curso = ?',(session['user_logueado'], curso)).fetchall()
+        if calificacion is None or len(calificacion)==0:
+            session.pop('cursoalumno', None)
+            session.pop('calificacion', None)
+            error = "El curso no tiene notas disponibles"
+            flash(error)
+            return redirect(url_for('calificacionalumno'))
+        else:
+            namecurso =  db.execute('SELECT nombre_curso FROM cursos WHERE id_cursos = ?',(curso,)).fetchone()
+            if namecurso is None or len(namecurso)==0:
+                session['namecurso'] = "seleccione el programa"
+                
+            else:
+                session['namecurso'] = namecurso
+            session['calificacion'] = calificacion
+    return render_template("admin/calificacionalumno.html", titulo="Ver Tus Calificaciones")
+
+#Calificaciones Docente  Ver - Calificar y Modificar
+@app.route('/calificaciondocente', methods=['GET', 'POST'])
+def calificaciondocente():
+    session['gps']="Cursos de los cuales soy el docente" #breadcrumb
+    db = get_db()
+    cursodocente =  db.execute('SELECT DISTINCT cursos.id_cursos, cursos.nombre_curso FROM rel_curso_actividad_usuario INNER JOIN cursos ON cursos.id_cursos = rel_curso_actividad_usuario.id_curso WHERE rel_curso_actividad_usuario.id_usuario=?',(session['user_logueado'],)).fetchall()
+    if cursodocente is None or len(cursodocente)==0:
+        session.pop('cursodocente', None)
+        session.pop('calificacion', None)
+        session.pop('nameact', None)
+        session.pop('namecurso', None)
+        session.pop('actividadDB', None)
+        session.pop('cantidadactividadDB', None)
+        session.pop('actividades', None)
+        error = "El docente no tiene asignado ningun curso"
+        flash(error)
+        return redirect(url_for('sindatos'))
+    else:
+        session.pop('cursodocente', None)
+        session.pop('calificacion', None)
+        session.pop('nameact', None)
+        session.pop('namecurso', None)
+        session.pop('actividadDB', None)
+        session.pop('cantidadactividadDB', None)
+        session.pop('actividades', None)
+        session['cursodocente'] = cursodocente
+        
+    return render_template("admin/calificaciondocente.html", titulo="Ver Tus Cursos a Calificar")
+
+@app.route('/calificaciondocente/<int:curso>', methods=['GET', 'POST'])
+def calificaciondocentecurso(curso):
+    if curso != 0:
+        db = get_db()
+        actividades =  db.execute('SELECT actividades.id_actividad, actividades.descripcion FROM rel_curso_actividad_usuario INNER JOIN actividades ON actividades.id_actividad = rel_curso_actividad_usuario.id_actividad WHERE rel_curso_actividad_usuario.id_usuario = ? AND rel_curso_actividad_usuario.id_curso = ?',(session['user_logueado'], curso)).fetchall()
+        if actividades is None or len(actividades)==0:
+            session.pop('cursodocente', None)
+            session.pop('actividades', None)
+            session.pop('nameact', None)
+            session.pop('actividadDB', None)
+            session.pop('cantidadactividadDB', None)
+            error = "El curso no tiene notas disponibles"
+            flash(error)
+            return redirect(url_for('calificaciondocente'))
+        else:
+            namecurso =  db.execute('SELECT nombre_curso FROM cursos WHERE id_cursos = ?',(curso,)).fetchone()
+            if namecurso is None or len(namecurso)==0:
+                session['namecurso'] = "seleccione el programa"
+                
+            else:
+                session['namecurso'] = namecurso
+            session.pop('nameact', None)
+            session['actividades'] = actividades
+            session['curso'] = curso
+            session['descactividad'] = actividades
+            session.pop('actividadDB', None)
+            session.pop('cantidadactividadDB', None)
+    return render_template("admin/calificaciondocente.html", titulo="Ver las Calificaciones")
+
+@app.route('/calificaciondocente/<int:curso>/<int:actividad>', methods=['GET', 'POST'])
+def calificaciondocentecursoactividad(curso,actividad):
+    if actividad != 0 and curso !=0: 
+        db = get_db()
+        actividadDB =  db.execute('SELECT DISTINCT actividades.id_actividad, actividades.descripcion, rel_curso_actividad_usuario.id_usuario, usuario.nombre_usuario, usuario.Apellido_usuario, rel_curso_actividad_usuario.calificacion FROM rel_curso_actividad_usuario INNER JOIN actividades ON actividades.id_actividad = rel_curso_actividad_usuario.id_actividad INNER JOIN usuario ON usuario.id_usuario = rel_curso_actividad_usuario.id_usuario WHERE rel_curso_actividad_usuario.id_curso = ? AND actividades.id_actividad = ? AND usuario.id_rol != 2',(curso,actividad)).fetchall()
+        
+        if actividadDB is None or len(actividadDB)==0:
+            session.pop('cursodocente', None)
+            session.pop('actividades', None)
+            session.pop('nameact', None)
+            session.pop('actividadDB', None)
+            session.pop('cantidadactividadDB', None)
+            error = "No existen Actividades asociadas al Curso seleccionado"
+            flash(error)
+            return render_template("admin/calificaciondocente.html", curso = curso, titulo="Ver Calificaciones")
+        else:
+            nameact  = db.execute('SELECT descripcion FROM actividades WHERE id_actividad = ?',(actividad,)).fetchone()
+            if nameact is None or len(nameact)==0:
+                session['nameact'] = "seleccione la actividad"
+                
+            else:
+                session['nameact'] = nameact
+            session['actividadDB'] = actividadDB
+            session['cantidadactividadDB'] = len(actividadDB)
+    return render_template("admin/calificaciondocente.html", curso = curso, titulo="Ver Calificaciones")
+
+@app.route('/handle_data', methods=['POST'])
+def handle_data():
+    error = None
+    if request.method == 'POST':
+        if error is not None:
+            # Ocurrió un error
+            error = "Error al realizar la petición"
+            flash(error)
+            return render_template("admin/guardarcalificacion.html",titulo="Error al guardar la calificacion")
+        else:
+            notas = request.form.getlist('nota')
+            alumnos = request.form.getlist('alumno')
+            array_length = len(alumnos)
+            db = get_db()
+            for i in range(array_length):
+                print(alumnos[i], notas[i])
+                db.execute('UPDATE rel_curso_actividad_usuario SET calificacion = ? WHERE id_usuario = ?',(notas[i],alumnos[i]))
+                db.commit()
+            return render_template("admin/guardarcalificacion.html")
+            print("###############################", notas, alumnos)     
+    return render_template("admin/guardarcalificacion.html")          
+            
+#PAnel de usuarios solo para el root
+@app.route('/listarusuarios', methods=['GET', 'POST'])#lista las actividades 
+def listarusuarios():
+    db = get_db()
+    session['user_logueado']#id
+    session['rol_logueado']#rol 1 admin - 2 docente - 3 estudiante
+    if session['rol_logueado'] == 1:
+        usuarios =  db.execute('SELECT usuario.eliminado, usuario.id_usuario, usuario.nombre_usuario, usuario.Apellido_usuario, usuario.correo, usuario.facultad, rol.nombre_rol fROM usuario INNER JOIN rol ON rol.id_rol = usuario.id_rol WHERE usuario.id_rol = 2 OR usuario.id_rol = 3 ').fetchall()
+    else:
+        usuarios = None
+    if usuarios is None:
+        error = "No eres un usuario autorizado"
+        flash(error)
+        return render_template("admin/listarusuarios.html", titulo="Listado de usuarios")
+    else:
+        session['gps'] = "usuarios"
+        #session['link'] = ""
+        session['usuarios'] = usuarios
+
+    return render_template("admin/listarusuarios.html")
+
+
+@app.route('/estadousuario/<int:user>/<int:estado>', methods=['GET', 'POST'])
+def estadousuario(user, estado):
+    error = None
+    if request.method == 'GET':
+        if error is not None:
+            # Ocurrió un error
+            error = "Error al realizar la petición"
+            flash(error)
+            return render_template("admin/listarusuarios.html",titulo="Error al guardar la calificacion")
+        else:
+            db = get_db()
+            db.execute('UPDATE usuario SET eliminado = ? WHERE id_usuario = ?',(estado,user))
+            db.commit()
+            error = "Se actualizo el estado del usuario"
+            flash(error)
+            return redirect(url_for("listarusuarios"))
+    return render_template("admin/listarusuarios.html") 
+
+@app.route('/crearusuario/', methods=['GET', 'POST'])
+def crearusuario():
+    db = get_db()
+    rol =  db.execute('SELECT * FROM rol').fetchall()
+    programas =  db.execute('SELECT * FROM programas').fetchall()
+    session['rol'] = rol
+    session['programas'] = programas
+    return render_template("admin/crearusuario.html") 
+
+@app.route('/guardarusuario', methods=['POST'])
+def guardarusuario():
+    error = None
+    if request.method == 'POST':
+        if error is not None:
+            # Ocurrió un error
+            error = "Error al realizar la petición"
+            flash(error)
+            return render_template("admin/crearusuario.html",titulo="Error al guardar el usuario")
+        else:
+            nombre = request.form.get('nombre')
+            apellido = request.form.get('apellido')
+            cedula = request.form.get('cedula')
+            correo = request.form.get('correo')
+            pregrado = request.form.get('pregrado')
+            postgrado = request.form.get('postgrado')
+            fecha = request.form.get('fecha')
+            tel = request.form.get('tel')
+            facul = request.form.get('facul')
+            programa = request.form.get('programa')
+            rol = request.form.get('rol')
+            user = nombre.replace(" ", "")
+            passw = generate_password_hash(cedula)
+            cod = cedula
+            eliminado = 0
+            db = get_db()
+            consulta= db.execute('INSERT INTO usuario (id_rol, user_usuario, password_usuario, nombre_usuario, Apellido_usuario, correo, cedula, codigo_usuario, pregrado, postgrado, telefono, fecha_nacimiento, facultad, id_programa, eliminado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',(rol, user, passw, nombre, apellido, correo, cedula, cod, pregrado, postgrado, tel, fecha, facul, programa, eliminado))
+            db.commit()
+            if consulta is None:
+                    error = "Error al crear el usuario"
+                    flash(error)
+                    return render_template("admin/crearusuario.html",titulo="Error al guardar el usuario")
+            else:
+                error = "Usuario Guardado con Exito"
+                flash(error)
+                return redirect(url_for("listarusuarios"))  
+    return render_template("admin/crearusuario.html") 
+
+@app.route('/editarusuario/<int:user>', methods=['GET', 'POST'])
+def editarusuario(user):
+    error = None
+    if request.method == 'GET':
+        if error is not None:
+            # Ocurrió un error
+            error = "Error al realizar la petición"
+            flash(error)
+            return redirect(url_for("listarusuarios")) 
+        else:
+            db = get_db()
+            session['user_logueado']#id
+            session['rol_logueado']#rol 1 admin - 2 docente - 3 estudiante
+            if session['rol_logueado'] == 1:
+                usuario =  db.execute('SELECT usuario.id_usuario, usuario.nombre_usuario, usuario.Apellido_usuario, usuario.cedula, usuario.correo, usuario.pregrado, usuario.postgrado, usuario.telefono, usuario.fecha_nacimiento, usuario.facultad, rol.nombre_rol, rol.id_rol, programas.nombre_programa, programas.id_programa FROM usuario INNER JOIN rol ON rol.id_rol = usuario.id_rol INNER JOIN programas ON programas.id_programa = usuario.id_programa WHERE id_usuario = ? ',(user,)).fetchone()
+            else:
+                usuario = None
+            if usuario is None:
+                error = "No eres un usuario autorizado"
+                flash(error)
+                return render_template("admin/editarusuario.html", titulo="Listado de usuarios")
+            else:
+                session.pop('usuario', None)
+                session['gps'] = "usuario"
+                #session['link'] = ""
+                session['usuario'] = usuario
+                
+    return render_template("admin/editarusuario.html") 
+
+@app.route('/actualizarusuario', methods=['POST'])
+def actualizarusuario():
+    error = None
+    if request.method == 'POST':
+        if error is not None:
+            # Ocurrió un error
+            error = "Error al realizar la petición"
+            flash(error)
+            return render_template("admin/listarusuarios.html",titulo="Error al guardar el usuario")
+        else:
+            iduser = request.form.get('id')
+            nombre = request.form.get('nombre')
+            apellido = request.form.get('apellido')
+            cedula = request.form.get('cedula')
+            correo = request.form.get('correo')
+            pregrado = request.form.get('pregrado')
+            postgrado = request.form.get('postgrado')
+            fecha = request.form.get('fecha')
+            tel = request.form.get('tel')
+            facul = request.form.get('facul')
+            programa = request.form.get('programa')
+            rol = request.form.get('rol')
+            user = nombre.replace(" ", "")
+            passw = generate_password_hash(cedula)
+            cod = cedula
+            db = get_db()
+            consulta= db.execute('UPDATE usuario SET id_rol = ?, user_usuario = ?, password_usuario = ?, nombre_usuario = ?, Apellido_usuario = ?, correo = ?, cedula = ?, codigo_usuario = ?, pregrado = ?, postgrado = ?, telefono = ?, fecha_nacimiento = ?, facultad = ?, id_programa = ? WHERE id_usuario = ?',(rol, user, passw, nombre, apellido, correo, cedula, cod, pregrado, postgrado, tel, fecha, facul, programa, iduser))
+            db.commit()
+            if consulta is None:
+                    error = "Error al actualizar el usuario"
+                    flash(error)
+                    return render_template("admin/listarusuarios.html",titulo="Error al modificar el usuario")
+            else:
+                error = "Usuario Modificado con Exito"
+                flash(error)
+                return redirect(url_for("listarusuarios"))  
+    return render_template("admin/listarusuarios.html") 
+
+#PAnel de usuarios solo para el root
+@app.route('/listarusuarios', methods=['GET', 'POST'])#lista las actividades 
+def listarusuarios():
+    db = get_db()
+    session['user_logueado']#id
+    session['rol_logueado']#rol 1 admin - 2 docente - 3 estudiante
+    if session['rol_logueado'] == 1:
+        usuarios =  db.execute('SELECT usuario.eliminado, usuario.id_usuario, usuario.nombre_usuario, usuario.Apellido_usuario, usuario.correo, usuario.facultad, rol.nombre_rol fROM usuario INNER JOIN rol ON rol.id_rol = usuario.id_rol WHERE usuario.id_rol = 2 OR usuario.id_rol = 3 ').fetchall()
+    else:
+        usuarios = None
+    if usuarios is None:
+        error = "No eres un usuario autorizado"
+        flash(error)
+        return render_template("admin/listarusuarios.html", titulo="Listado de usuarios")
+    else:
+        session['gps'] = "usuarios"
+        #session['link'] = ""
+        session['usuarios'] = usuarios
+
+    return render_template("admin/listarusuarios.html")
+
+
+@app.route('/estadousuario/<int:user>/<int:estado>', methods=['GET', 'POST'])
+def estadousuario(user, estado):
+    error = None
+    if request.method == 'GET':
+        if error is not None:
+            # Ocurrió un error
+            error = "Error al realizar la petición"
+            flash(error)
+            return render_template("admin/listarusuarios.html",titulo="Error al guardar la calificacion")
+        else:
+            db = get_db()
+            db.execute('UPDATE usuario SET eliminado = ? WHERE id_usuario = ?',(estado,user))
+            db.commit()
+            error = "Se actualizo el estado del usuario"
+            flash(error)
+            return redirect(url_for("listarusuarios"))
+    return render_template("admin/listarusuarios.html") 
+
+@app.route('/crearusuario/', methods=['GET', 'POST'])
+def crearusuario():
+    db = get_db()
+    rol =  db.execute('SELECT * FROM rol').fetchall()
+    programas =  db.execute('SELECT * FROM programas').fetchall()
+    session['rol'] = rol
+    session['programas'] = programas
+    return render_template("admin/crearusuario.html") 
+
+@app.route('/guardarusuario', methods=['POST'])
+def guardarusuario():
+    error = None
+    if request.method == 'POST':
+        if error is not None:
+            # Ocurrió un error
+            error = "Error al realizar la petición"
+            flash(error)
+            return render_template("admin/crearusuario.html",titulo="Error al guardar el usuario")
+        else:
+            nombre = request.form.get('nombre')
+            apellido = request.form.get('apellido')
+            cedula = request.form.get('cedula')
+            correo = request.form.get('correo')
+            pregrado = request.form.get('pregrado')
+            postgrado = request.form.get('postgrado')
+            fecha = request.form.get('fecha')
+            tel = request.form.get('tel')
+            facul = request.form.get('facul')
+            programa = request.form.get('programa')
+            rol = request.form.get('rol')
+            user = nombre.replace(" ", "")
+            passw = generate_password_hash(cedula)
+            cod = cedula
+            eliminado = 0
+            db = get_db()
+            consulta= db.execute('INSERT INTO usuario (id_rol, user_usuario, password_usuario, nombre_usuario, Apellido_usuario, correo, cedula, codigo_usuario, pregrado, postgrado, telefono, fecha_nacimiento, facultad, id_programa, eliminado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',(rol, user, passw, nombre, apellido, correo, cedula, cod, pregrado, postgrado, tel, fecha, facul, programa, eliminado))
+            db.commit()
+            if consulta is None:
+                    error = "Error al crear el usuario"
+                    flash(error)
+                    return render_template("admin/crearusuario.html",titulo="Error al guardar el usuario")
+            else:
+                error = "Usuario Guardado con Exito"
+                flash(error)
+                return redirect(url_for("listarusuarios"))  
+    return render_template("admin/crearusuario.html") 
+
+@app.route('/editarusuario/<int:user>', methods=['GET', 'POST'])
+def editarusuario(user):
+    error = None
+    if request.method == 'GET':
+        if error is not None:
+            # Ocurrió un error
+            error = "Error al realizar la petición"
+            flash(error)
+            return redirect(url_for("listarusuarios")) 
+        else:
+            db = get_db()
+            session['user_logueado']#id
+            session['rol_logueado']#rol 1 admin - 2 docente - 3 estudiante
+            if session['rol_logueado'] == 1:
+                usuario =  db.execute('SELECT usuario.id_usuario, usuario.nombre_usuario, usuario.Apellido_usuario, usuario.cedula, usuario.correo, usuario.pregrado, usuario.postgrado, usuario.telefono, usuario.fecha_nacimiento, usuario.facultad, rol.nombre_rol, rol.id_rol, programas.nombre_programa, programas.id_programa FROM usuario INNER JOIN rol ON rol.id_rol = usuario.id_rol INNER JOIN programas ON programas.id_programa = usuario.id_programa WHERE id_usuario = ? ',(user,)).fetchone()
+            else:
+                usuario = None
+            if usuario is None:
+                error = "No eres un usuario autorizado"
+                flash(error)
+                return render_template("admin/editarusuario.html", titulo="Listado de usuarios")
+            else:
+                session.pop('usuario', None)
+                session['gps'] = "usuario"
+                #session['link'] = ""
+                session['usuario'] = usuario
+                
+    return render_template("admin/editarusuario.html") 
+
+@app.route('/actualizarusuario', methods=['POST'])
+def actualizarusuario():
+    error = None
+    if request.method == 'POST':
+        if error is not None:
+            # Ocurrió un error
+            error = "Error al realizar la petición"
+            flash(error)
+            return render_template("admin/listarusuarios.html",titulo="Error al guardar el usuario")
+        else:
+            iduser = request.form.get('id')
+            nombre = request.form.get('nombre')
+            apellido = request.form.get('apellido')
+            cedula = request.form.get('cedula')
+            correo = request.form.get('correo')
+            pregrado = request.form.get('pregrado')
+            postgrado = request.form.get('postgrado')
+            fecha = request.form.get('fecha')
+            tel = request.form.get('tel')
+            facul = request.form.get('facul')
+            programa = request.form.get('programa')
+            rol = request.form.get('rol')
+            user = nombre.replace(" ", "")
+            passw = generate_password_hash(cedula)
+            cod = cedula
+            db = get_db()
+            consulta= db.execute('UPDATE usuario SET id_rol = ?, user_usuario = ?, password_usuario = ?, nombre_usuario = ?, Apellido_usuario = ?, correo = ?, cedula = ?, codigo_usuario = ?, pregrado = ?, postgrado = ?, telefono = ?, fecha_nacimiento = ?, facultad = ?, id_programa = ? WHERE id_usuario = ?',(rol, user, passw, nombre, apellido, correo, cedula, cod, pregrado, postgrado, tel, fecha, facul, programa, iduser))
+            db.commit()
+            if consulta is None:
+                    error = "Error al actualizar el usuario"
+                    flash(error)
+                    return render_template("admin/listarusuarios.html",titulo="Error al modificar el usuario")
+            else:
+                error = "Usuario Modificado con Exito"
+                flash(error)
+                return redirect(url_for("listarusuarios"))  
+    return render_template("admin/listarusuarios.html") 
+
+@app.route('/sindatos', methods=['GET', 'POST'])
+def sindatos():
+    return render_template("admin/sindatos.html", titulo='Error 404')
 
 @app.route('/gracias', methods=['GET', 'POST'])
 def gracias():
@@ -193,7 +935,7 @@ def home(): #----------------------------------------------------------->home
         session['buscacursos']="busquedacursos" 
         session['mensajes']="consultaractividades"
         session['creacionactividad']="creacionactividaddocente"
-        session['veractividad']="consultaractividades"
+        session['moduloVeractividad']="modificaractividades" # estudiantes -franklin
         session['notas']="notasdocente"
         session['calificacionespublicadas']="calificacionespublicadas"
        
@@ -327,12 +1069,7 @@ def notasestudiante():
     session['gps']="Calificaciones" #breadcrumb
     return render_template("admin/notasestudiante.html", titulo="Calificaciones de Estudiante")
 
-#calificaciones publicadas docente
-@app.route('/calificacionespublicadas', methods=['GET', 'POST'])
-def calificacionespublicadas():
-    
-    session['gps']="Calificaciones publicadas" #breadcrumb
-    return render_template("admin/calificacionespublicadas.html", titulo="Calificaciones Publicas")
+
 
 #Notas docente
 @app.route('/notasdocente', methods=['GET', 'POST'])
@@ -373,12 +1110,14 @@ def ingresar():
                 return render_template("ingresar.html", form=form, titulo="Iniciar Sesión")
             else:
                 db = get_db()
+                print("####################",usuario)
                 #user =  db.execute('SELECT * FROM usuario WHERE user_usuario = ? AND password_usuario = ?',(usuario, contrasena)).fetchone()
-                user =  db.execute('SELECT id_usuario, id_rol, user_usuario, password_usuario, nombre_usuario, apellido_usuario FROM usuario WHERE user_usuario = ?',(usuario,)).fetchone() 
-                print(user) 
+                user =  db.execute('SELECT id_usuario, id_rol, user_usuario, password_usuario, nombre_usuario, apellido_usuario FROM usuario WHERE user_usuario = ? AND eliminado = 0',(usuario,)).fetchone() 
+                print("####################",user) 
                 if user is None:
                     error = "Usuario no Existe en la Base de Datos"
                     flash(error)
+                    return render_template("ingresar.html", form=form, titulo="Iniciar Sesión")
                 else:                
                     usuario_valido = check_password_hash(user[3],contrasena)
                     if not usuario_valido:
@@ -412,39 +1151,38 @@ def busqueda_cursos():
     session['gps']="Buscar cursos" #breadcrumb
     return render_template("admin/busquedacursos.html", titulo="Buscador de cursos")
 
+
 #Claudio
 @app.route('/creacionactividaddocente', methods=['GET', 'POST'])
-def creacionactividaddocente():
-    try:
-        form = crear_Actividad(request.form)
-        error = None
-        if request.method == 'POST': #and form.validate():  
-            nombreActividad = request.form['nombreActividad']
-            descripcion = request.form['descripcion']
-            fechaEntrega = request.form['fechaEntrega']
-            tipoActividad = request.form['tipoActividad']
-            asignatura = request.form['asignatura']
-            curso = request.form['curso']
+def creacionactividaddocente(): #este hace update de actividad, no crea XD
+    session['gps'] = "crear nueva actividad"
+    if request.method == 'POST': 
+        descrip = request.form["descripcion"]
+        tipo_activ =  request.form['tipo_activ']
+        asig =request.form['asig']
+        curse =request.form['curse']
+        fecha =request.form['fecha']     
+        db = get_db()  
+        consulta=db.execute("INSERT INTO actividades ( descripcion, id_tipo_actividad, fecha_entrega, id_asignatura) VALUES (?,?,?,?)",(descrip,tipo_activ,fecha,asig))
+        db.commit()
+        id_actividad_nueva=db.execute("SELECT *  FROM actividades WHERE descripcion=? and id_tipo_actividad=? and fecha_entrega=? and id_asignatura=?",(descrip,tipo_activ,fecha,asig)).fetchone()
+        id=id_actividad_nueva[0]
+        #flash(id)
+        db.execute("INSERT INTO rel_curso_actividad_usuario (id_curso, id_actividad ,id_usuario) VALUES ( ?, ?, ?)",(curse, id ,session['user_logueado'] ))
+        db.commit()
+        flash("Actividad insertada con éxito") 
+        db.close()
+        return redirect( ( "modificaractividades" ) )
 
-            #1. Validar datos de contacto:
-            if not isNameValid(nombreActividad):
-                # Si está mal.
-                error = "Solo debe usar letras en nombre y apellido"
-                flash(error)
-            if not isNameValid(descripcion):
-                # Si está mal.
-                error = "Correo invalido"
-                flash(error)
-            if error is not None:
-                # Ocurrió un error
-                return render_template("admin/creacionactividaddocente.html", form=form, titulo="Crear Actividad")
-            else:
-                return render_template("gracias.html", titulo='Gracias por escribirnos')
+    session['gps'] = "crear nueva actividad"
+    db = get_db()
+    cursoguardado= db.execute('SELECT *  FROM cursos').fetchall()
+    
+    tipo_tarea=db.execute('SELECT * FROM tipo_actividad').fetchall()
+    lista_asignaturas= db.execute('SELECT id_asignatura, asignatura FROM asignaturas' ).fetchall()
+    db.close()
+    return render_template("admin/creacionactividaddocente.html",lista_asignaturas=lista_asignaturas, tipo_tarea=tipo_tarea, cursoguardado=cursoguardado,titulo="Crear Actividad")
 
-        return render_template("admin/creacionactividaddocente.html", form=form, titulo="Crear Actividad")
-    except:
-        flash("¡Ups! Ha ocurrido un error, intentelo de nuevo.")
-        return render_template("admin/creacionactividaddocente.html", form=form,titulo="Crear Actividad")
 
 
 @app.route('/detalleactividadestudiante', methods=['GET', 'POST'])
@@ -532,14 +1270,8 @@ def registrocontrasenas():
             password = request.form['password']
             password2 = request.form['password2']
             flash(password)
-            flash(password2)
-            
-            db = get_db()
-             #cambiar a id de usuario logeado
             id =  session['user_logueado'] 
-            flash(id)
             error = None
-            
             
             if not password:
                 error = "Contraseña requerida."
@@ -547,20 +1279,7 @@ def registrocontrasenas():
             if not password2:
                 error = "Contraseña requerida."
                 flash(error)
-            #1. Validar usuario, email y contraseña:
-            #if not isUsernameValid(usuario):
-                # Si está mal.
-            #    error = "El usuario debe ser alfanumerico o incluir solo '.','_','-'"
-            #    flash(error)
-            #if not isEmailValid(email):
-                # Si está mal.
-            #    error = "Correo invalido"
-            #    flash(error)
-            #if not isPasswordValid(password):
-                # Si está mal.
-            #    error = "La contraseña debe contener al menos una minúscula, una mayúscula, un número y 8 caracteres"
-            #    flash(error)
-                      
+            
             if password2 != password:
                 error = "Las contraseñas no coinciden"
                 flash(error)
@@ -571,11 +1290,11 @@ def registrocontrasenas():
             else:
                 # Seguro:
                 password_cifrado = generate_password_hash(password)
-                db.execute(
-                    
-                    "UPDATE usuario SET password_usuario = ? WHERE id_usuario = ?",(password_cifrado,id)
-                )
+                db = get_db()
+                db.execute("UPDATE usuario SET password_usuario = ? WHERE id_usuario = ?",(password_cifrado,id))
                 db.commit()
+                db.close()
+                session.clear()
                 #2. Enviar un correo.
                 # Para crear correo:                                    
                 # Modificar la siguiente linea con tu informacion personal            

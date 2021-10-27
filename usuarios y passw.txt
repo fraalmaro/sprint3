@@ -1,0 +1,14 @@
+usuario: docentematematica
+passw: mat123
+
+usuario: docentebiologia
+passw: bio123
+
+usuario: profe
+passw: profe123
+
+admin
+admin123
+
+alumno
+alumno123
